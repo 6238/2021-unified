@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.ShootCommand;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Factory;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -37,7 +37,7 @@ public class RobotContainer {
 
     private final DriveCommand driveCommand;
     private final IntakeCommand intakeCommand;
-    private final ShootCommand shootCommand;
+    private final ShooterCommand shooterCommand;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -51,11 +51,11 @@ public class RobotContainer {
 
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
         intakeCommand = new IntakeCommand(factory, intakeSubsystem);
-        shootCommand = new ShootCommand(factory, shooterSubsystem/* , joystick */);
+        shooterCommand = new ShooterCommand(factory, shooterSubsystem/* , joystick */);
 
         driveSubsystem.setDefaultCommand(driveCommand);
         intakeSubsystem.setDefaultCommand(intakeCommand);
-        shooterSubsystem.setDefaultCommand(shootCommand);
+        shooterSubsystem.setDefaultCommand(shooterCommand);
 
         // Configure the button bindings
         configureButtonBindings();
@@ -68,8 +68,8 @@ public class RobotContainer {
      * passing it to a {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        new JoystickButton(joystick, Constants.SHOOTER_BUTTON).whenPressed(() -> shootCommand.toggleShooter(true))
-                .whenReleased(() -> shootCommand.toggleShooter(false));
+        new JoystickButton(joystick, Constants.SHOOTER_BUTTON).whenPressed(() -> shooterCommand.toggleShooter(true))
+                .whenReleased(() -> shooterCommand.toggleShooter(false));
         
         new JoystickButton(joystick, Constants.ELEVATOR_BUTTON).whenPressed(() -> intakeCommand.setElevator(1)).whenReleased(() -> intakeCommand.setElevator(0));
         new JoystickButton(joystick, Constants.ELEVATOR_REVERSE_BUTTON).whenPressed(() -> intakeCommand.setElevator(-1)).whenReleased(() -> intakeCommand.setElevator(0));

@@ -19,16 +19,14 @@ public class DriveCommand extends CommandBase {
     /**
      * Takes in a speed
      * 
-     * @param dr         The robot's drivetrain
+     * @param driveSubsystem The robot's drivetrain
      * @param joystick The joystick controller to use
      */
-    public DriveCommand(Factory f, DriveSubsystem dr, Joystick joystick) {
-        driveSubsystem = dr;
+    public DriveCommand(Factory f, DriveSubsystem driveSubsystem, Joystick joystick) {
+        this.driveSubsystem = driveSubsystem;
         this.joystick = joystick;
 
         maxSpeedSlider = f.getSlider("Max Speed", 0.5, 0.0, 1.0);
-
-        addRequirements(dr);
     }
 
     @Override

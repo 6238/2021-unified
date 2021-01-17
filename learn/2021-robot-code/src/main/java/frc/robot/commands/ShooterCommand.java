@@ -6,12 +6,12 @@ import frc.robot.io.Slider;
 import frc.robot.subsystems.Factory;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class ShootCommand extends CommandBase {
+public class ShooterCommand extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
     private Slider speedSlider;
     private boolean shooterButton;
 
-    public ShootCommand(Factory f, ShooterSubsystem shooterSubsystem) {
+    public ShooterCommand(Factory f, ShooterSubsystem shooterSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
         speedSlider = f.getSlider("Shooter speed: ", Constants.INITIAL_SHOOTER, 0.0, 1.0);
     }
