@@ -42,7 +42,6 @@ public final class Constants {
     public static final int INTAKE_SOLENOID_FORWARD = 0;
     public static final int INTAKE_SOLENOID_REVERSE = 1;
 
-
     // Shooters
     public static final double INITIAL_SHOOTER = 0.0;
 
@@ -53,6 +52,8 @@ public final class Constants {
     public static final int JOYSTICK_A = 0;
 
     // Joystick buttons
+    public static final int SHOOTER_BUTTON = 1;
+    public static final int THROAT_BUTTON = 2;
     public static final int ELEVATOR_BUTTON = 3;
     public static final int FEEDER_REVERSE_BUTTON = 4;
     public static final int ELEVATOR_REVERSE_BUTTON = 5;

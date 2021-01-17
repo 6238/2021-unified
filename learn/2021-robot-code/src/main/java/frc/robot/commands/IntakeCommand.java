@@ -3,10 +3,6 @@ package frc.robot.commands;
 import frc.robot.io.Slider;
 import frc.robot.subsystems.Factory;
 import frc.robot.subsystems.IntakeSubsystem;
-
-import static frc.robot.Constants.*;
-
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
@@ -15,19 +11,15 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * @author sherif
  */
 public class IntakeCommand extends CommandBase {
-    public static final int THROAT_SPEED = 0;
-    public static final int ELEVATOR_SPEED = 1;
-    public static final int FEEDER_SPEED = 2;
-    public double[] speeds = { 1.0, -1.0, 1.0 };
-    public boolean elevatorLeft = false;
-    public boolean elevatorReverse = false;
-    public boolean throat = false;
-    public boolean feeder = false;
+    private double elevatorSpeed;
+    private double feederSpeed;
+    private double throatSpeed;
+
+    private Slider elevatorSlider;
+    private Slider feederSlider;
+    private Slider throatSlider;
 
     private final IntakeSubsystem intakeSubsystem;
-    private final Joystick joystick;
-    private Slider[] sliders = new Slider[3];
-    private boolean feederReverse;
 
     /**
      * Creates and starts an intake
@@ -35,38 +27,39 @@ public class IntakeCommand extends CommandBase {
      * @param intakeSubsystem the IntakeControl subsystem
      */
 
-    public IntakeCommand(Factory f, IntakeSubsystem intakeSubsystem, Joystick joystick) {
+    public IntakeCommand(Factory f, IntakeSubsystem intakeSubsystem) {
         this.intakeSubsystem = intakeSubsystem;
-        this.joystick = joystick;
-        sliders[0] = f.getSlider("Throat Speed", 1.0, -1.0, 1.0);
-        sliders[1] = f.getSlider("Elevator Speed", 1.0, -1.0, 1.0);
-        sliders[2] = f.getSlider("Feeder Speed", 1.0, -1.0, 1.0);
-    }
-
-    private void readSliders() {
-        int i = 0;
-        for (Slider slider : sliders) {
-            try {
-                speeds[i] = slider.getDouble();
-            } catch (NullPointerException ignored) {
-            }
-            i++;
-        }
+        elevatorSlider = f.getSlider("Elevator Speed", 1.0, -1.0, 1.0);
+        feederSlider = f.getSlider("Feeder Speed", 1.0, -1.0, 1.0);
+        throatSlider = f.getSlider("Throat Speed", 1.0, -1.0, 1.0);
     }
 
     @Override
     public void execute() {
-        readSliders();
-        elevatorLeft = joystick.getRawButton(ELEVATOR_BUTTON);
-        elevatorReverse = joystick.getRawButton(ELEVATOR_REVERSE_BUTTON);
-        feeder = joystick.getRawButton(FEEDER_BUTTON);
-        feederReverse = joystick.getRawButton(FEEDER_REVERSE_BUTTON);
+        intakeSubsystem.setElevatorSpeed(elevatorSpeed);
+        intakeSubsystem.setFeederSpeed(feederSpeed);
+        intakeSubsystem.setThroatSpeed(throatSpeed);
+    }
 
-        var elevatorSpeed = elevatorReverse ? -speeds[ELEVATOR_SPEED] : speeds[ELEVATOR_SPEED];
-        var feederSpeed = feederReverse ? -speeds[FEEDER_SPEED] : speeds[FEEDER_SPEED];
+    /**
+     * @param status -1: reverse, 0: off, 1: forward
+     */
+    public void setElevator(int status) {
+        elevatorSpeed = status * elevatorSlider.getDouble();
+    }
 
-        intakeSubsystem.setElevatorSpeed(elevatorLeft || elevatorReverse ? elevatorSpeed : 0);
-        intakeSubsystem.setFeederSpeed(feeder || feederReverse ? feederSpeed : 0);
+    /**
+     * @param status -1: reverse, 0: off, 1: forward
+     */
+    public void setFeeder(int status) {
+        feederSpeed = status * feederSlider.getDouble();
+    }
+
+    /**
+     * @param status 0: off, 1: forward
+     */
+    public void setThroat(int status) {
+        throatSpeed = status * throatSlider.getDouble();
     }
 
     @Override

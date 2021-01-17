@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShootCommand;
@@ -49,8 +50,8 @@ public class RobotContainer {
         shooterSubsystem = new ShooterSubsystem(factory);
 
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
-        intakeCommand = new IntakeCommand(factory, intakeSubsystem, joystick);
-        shootCommand = new ShootCommand(factory, shooterSubsystem);
+        intakeCommand = new IntakeCommand(factory, intakeSubsystem);
+        shootCommand = new ShootCommand(factory, shooterSubsystem/* , joystick */);
 
         driveSubsystem.setDefaultCommand(driveCommand);
         intakeSubsystem.setDefaultCommand(intakeCommand);
@@ -63,11 +64,20 @@ public class RobotContainer {
     /**
      * Use this method to define your button->command mappings. Buttons can be
      * created by instantiating a {@link GenericHID} or one of its subclasses
-     * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
-     * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     * ({@link Joystick} or {@link XboxController}), and then
+     * passing it to a {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-
+        new JoystickButton(joystick, Constants.SHOOTER_BUTTON).whenPressed(() -> shootCommand.toggleShooter(true))
+                .whenReleased(() -> shootCommand.toggleShooter(false));
+        
+        new JoystickButton(joystick, Constants.ELEVATOR_BUTTON).whenPressed(() -> intakeCommand.setElevator(1)).whenReleased(() -> intakeCommand.setElevator(0));
+        new JoystickButton(joystick, Constants.ELEVATOR_REVERSE_BUTTON).whenPressed(() -> intakeCommand.setElevator(-1)).whenReleased(() -> intakeCommand.setElevator(0));
+        
+        new JoystickButton(joystick, Constants.FEEDER_BUTTON).whenPressed(() -> intakeCommand.setFeeder(1)).whenReleased(() -> intakeCommand.setFeeder(0));
+        new JoystickButton(joystick, Constants.FEEDER_REVERSE_BUTTON).whenPressed(() -> intakeCommand.setFeeder(-1)).whenReleased(() -> intakeCommand.setFeeder(0));
+        
+        new JoystickButton(joystick, Constants.THROAT_BUTTON).whenPressed(() -> intakeCommand.setThroat(1)).whenReleased(() -> intakeCommand.setThroat(0));
     }
 
     /**

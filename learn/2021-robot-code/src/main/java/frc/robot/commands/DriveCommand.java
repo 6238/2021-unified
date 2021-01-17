@@ -14,19 +14,19 @@ import frc.robot.subsystems.Factory;
 public class DriveCommand extends CommandBase {
     private final DriveSubsystem driveSubsystem;
     private final Slider maxSpeedSlider;
-    private final Joystick controller;
+    private final Joystick joystick;
 
     /**
      * Takes in a speed
      * 
      * @param dr         The robot's drivetrain
-     * @param controller The joystick controller to use
+     * @param joystick The joystick controller to use
      */
-    public DriveCommand(Factory f, DriveSubsystem dr, Joystick controller) {
+    public DriveCommand(Factory f, DriveSubsystem dr, Joystick joystick) {
         driveSubsystem = dr;
-        this.controller = controller;
+        this.joystick = joystick;
 
-        maxSpeedSlider = f.getSlider("Max Speed", 1.0, 0.0, 1.0);
+        maxSpeedSlider = f.getSlider("Max Speed", 0.5, 0.0, 1.0);
 
         addRequirements(dr);
     }
@@ -34,8 +34,8 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute() {
         driveSubsystem.setMaxSpeed(maxSpeedSlider.getDouble());
-        driveSubsystem.drive(-controller.getY(), controller.getTwist());
-        driveSubsystem.drive(0, 0);
+        driveSubsystem.drive(-joystick.getY(), joystick.getTwist());
+        // driveSubsystem.drive(0, 0);
     }
 
     @Override

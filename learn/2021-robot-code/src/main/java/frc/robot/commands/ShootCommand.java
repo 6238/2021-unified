@@ -9,15 +9,24 @@ import frc.robot.subsystems.ShooterSubsystem;
 public class ShootCommand extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
     private Slider speedSlider;
+    private boolean shooterButton;
 
     public ShootCommand(Factory f, ShooterSubsystem shooterSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
         speedSlider = f.getSlider("Shooter speed: ", Constants.INITIAL_SHOOTER, 0.0, 1.0);
     }
 
-
     @Override
     public void execute() {
-        shooterSubsystem.setSpeed(speedSlider.getDouble());
+        shooterSubsystem.setSpeed(shooterButton ? speedSlider.getDouble() : 0);
+    }
+
+    public void toggleShooter(boolean status) {
+        shooterButton = status;
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
     }
 }

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import static frc.robot.Constants.*;
+import frc.robot.Constants;
 
 public class DriveSubsystem extends SubsystemBase {
     private final WPI_TalonSRX leftA;
@@ -28,14 +28,14 @@ public class DriveSubsystem extends SubsystemBase {
     private double rot = 0.0;
 
     public DriveSubsystem(Factory f) {
-        leftA = f.getTalonMotor(DRIVE_LEFT_MOTOR_A);
-        leftB = f.getTalonMotor(DRIVE_LEFT_MOTOR_B);
-        leftC = f.getTalonMotor(DRIVE_LEFT_MOTOR_C);
+        leftA = f.getTalonMotor(Constants.DRIVE_LEFT_MOTOR_A);
+        leftB = f.getTalonMotor(Constants.DRIVE_LEFT_MOTOR_B);
+        leftC = f.getTalonMotor(Constants.DRIVE_LEFT_MOTOR_C);
         left = new SpeedControllerGroup(leftA, leftB, leftC);
 
-        rightA = f.getTalonMotor(DRIVE_RIGHT_MOTOR_A);
-        rightB = f.getTalonMotor(DRIVE_RIGHT_MOTOR_B);
-        rightC = f.getTalonMotor(DRIVE_RIGHT_MOTOR_C);
+        rightA = f.getTalonMotor(Constants.DRIVE_RIGHT_MOTOR_A);
+        rightB = f.getTalonMotor(Constants.DRIVE_RIGHT_MOTOR_B);
+        rightC = f.getTalonMotor(Constants.DRIVE_RIGHT_MOTOR_C);
         right = new SpeedControllerGroup(rightA, rightB, rightC);
 
         differentialDrive = new DifferentialDrive(left, right);
@@ -58,9 +58,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (Math.abs(xSpeed) >= SPEED_THRESHOLD) {
+        if (Math.abs(xSpeed) >= Constants.SPEED_THRESHOLD) {
             differentialDrive.arcadeDrive(xSpeed, rot, false);
-        } else if (Math.abs(rot) < ROTATE_THRESHOLD) {
+        } else if (Math.abs(rot) < Constants.ROTATE_THRESHOLD) {
             brake();
         } else {
             differentialDrive.setMaxOutput(1.0);

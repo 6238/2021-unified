@@ -26,25 +26,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private double iRange;
     private double ff;
 
-    public double getTarget() {
-        return target;
-    }
-
-    public void setTarget(double target) {
-        this.target = target;
-    }
-
     private double target;
 
     private boolean usePID = false;
-
-    public double getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
 
     public ShooterSubsystem(Factory f) {
         this(f, true);
@@ -57,6 +41,22 @@ public class ShooterSubsystem extends SubsystemBase {
         if (useFollower) {
             rightSide.follow(leftSide, true);
         }
+    }
+
+    public double getTarget() {
+        return target;
+    }
+
+    public void setTarget(double target) {
+        this.target = target;
+    }
+    
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     public void usePID(Factory f) {
