@@ -50,8 +50,8 @@ public class WriteCSVFile {
             output += LINE_SEPARATOR;
         }
 
-        try {
-            fileWriter = new FileWriter("" + count + ".csv");
+        /* try {
+            fileWriter = new FileWriter("" + count + ".csv"); */
 
             /* // adding the header
             fileWriter.append(HEADER);
@@ -82,7 +82,7 @@ public class WriteCSVFile {
                 fileWriter.append(LINE_SEPARATOR);
             } */
 
-            fileWriter.append(output);
+            /* fileWriter.append(output);
 
             System.out.println("Write to CSV file successful");
         } catch (Exception e) {
@@ -94,7 +94,7 @@ public class WriteCSVFile {
                 System.out.println("Error occurred while closing the fileWriter");
                 ie.printStackTrace();
             }
-        }
+        } */
 
         return output;
     }

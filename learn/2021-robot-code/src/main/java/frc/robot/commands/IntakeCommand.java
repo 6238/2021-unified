@@ -32,6 +32,8 @@ public class IntakeCommand extends CommandBase {
         elevatorSlider = f.getSlider("Elevator Speed", 1.0, -1.0, 1.0);
         feederSlider = f.getSlider("Feeder Speed", 1.0, -1.0, 1.0);
         throatSlider = f.getSlider("Throat Speed", 1.0, -1.0, 1.0);
+
+        addRequirements(intakeSubsystem);
     }
 
     @Override
@@ -45,7 +47,7 @@ public class IntakeCommand extends CommandBase {
      * @param status -1: reverse, 0: off, 1: forward
      */
     public void setElevator(int status) {
-        elevatorSpeed = status * elevatorSlider.getDouble();
+        elevatorSpeed = status * -1 * elevatorSlider.getDouble();
     }
 
     /**
@@ -59,7 +61,9 @@ public class IntakeCommand extends CommandBase {
      * @param status 0: off, 1: forward
      */
     public void setThroat(int status) {
-        throatSpeed = status * throatSlider.getDouble();
+        // throatSpeed = status * throatSlider.getDouble();
+        setElevator(status);
+        setFeeder(status);
     }
 
     @Override

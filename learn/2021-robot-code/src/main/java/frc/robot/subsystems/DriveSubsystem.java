@@ -33,8 +33,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final ADIS16470_IMU imu;
 
-    private double maxSpeed = 1.0;
-
     private double xSpeed = 0.0;
     private double rot = 0.0;
 
@@ -54,12 +52,12 @@ public class DriveSubsystem extends SubsystemBase {
         leftEncoderEntry = BoardManager.getManager().getTab().add("leftEncoder", 0).getEntry();
         rightEncoderEntry = BoardManager.getManager().getTab().add("rightEncoder", 0).getEntry();
 
-        leftA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
-        rightA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
+        leftC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
+        rightC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
 
         imu = new ADIS16470_IMU();
         imu.setYawAxis(IMUAxis.kZ);
-        BoardManager.getManager().getTab().add(imu);
+        // BoardManager.getManager().getTab().add(imu);
     }
 
     public void drive(double xSpeed, double rot) {
@@ -73,7 +71,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void setMaxSpeed(double maxSpeed) {
-        this.maxSpeed = maxSpeed;
         differentialDrive.setMaxOutput(maxSpeed);
     }
 
@@ -82,24 +79,24 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public WPI_TalonSRX getLeftTalon() {
-        return leftA;
+        return leftC;
     }
 
     public WPI_TalonSRX getRightTalon() {
-        return rightA;
+        return rightC;
     }
 
     @Override
     public void periodic() {
-        if (Math.abs(xSpeed) >= DriveConstants.SPEED_THRESHOLD) {
-            differentialDrive.arcadeDrive(xSpeed, rot, false);
+        differentialDrive.arcadeDrive(xSpeed, rot, false);
+        /* if (Math.abs(xSpeed) >= DriveConstants.SPEED_THRESHOLD) {
         } else if (Math.abs(rot) < DriveConstants.ROTATE_THRESHOLD) {
             brake();
         } else {
             differentialDrive.setMaxOutput(1.0);
             differentialDrive.tankDrive(Math.max(rot, 0.3), -Math.max(rot, 0.3), false);
             differentialDrive.setMaxOutput(maxSpeed);
-        }
+        } */
 
         leftEncoderEntry.setNumber(leftA.getSelectedSensorVelocity());
         rightEncoderEntry.setNumber(rightA.getSelectedSensorVelocity());

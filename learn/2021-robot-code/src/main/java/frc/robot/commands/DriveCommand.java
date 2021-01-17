@@ -24,13 +24,15 @@ public class DriveCommand extends CommandBase {
         this.driveSubsystem = driveSubsystem;
         this.joystick = joystick;
 
-        maxSpeedSlider = f.getSlider("Max Speed", 0.5, 0.0, 1.0);
+        maxSpeedSlider = f.getSlider("Max Speed", 1.0, 0.0, 1.0);
+        
+        addRequirements(driveSubsystem);
     }
 
     @Override
     public void execute() {
         driveSubsystem.setMaxSpeed(maxSpeedSlider.getDouble());
-        driveSubsystem.drive(-joystick.getY(), joystick.getTwist());
+        driveSubsystem.drive(-joystick.getY(), joystick.getX());
     }
 
     @Override
