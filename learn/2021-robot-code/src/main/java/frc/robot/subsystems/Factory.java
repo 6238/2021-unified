@@ -1,23 +1,22 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
-import edu.wpi.first.wpilibj.Solenoid;
-import frc.robot.helpers.MockableSparkMax;
-import frc.robot.interfaces.CANSparkMaxInterface;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.io.Info;
 import frc.robot.io.Slider;
 
 public class Factory {
     /**
-     * Creates a MockableSparkMax from a CANSparkMax
+     * Creates a CANSparkMax object
      * @param busID the ID of the motor controller
-     * @return the MockableSparkMax in interface form
+     * @return the CANSparkMax object
      */
-    public CANSparkMaxInterface getSparkMotor(int busID) {
-        return new MockableSparkMax(busID, CANSparkMaxLowLevel.MotorType.kBrushless);
+    public CANSparkMax getSparkMotor(int busID) {
+        return new CANSparkMax(busID, CANSparkMaxLowLevel.MotorType.kBrushless);
     }
-
 
     /**
      * Creates a Talon Motor
@@ -28,8 +27,8 @@ public class Factory {
         return new WPI_TalonSRX(busID);
     }
 
-    public Solenoid getSolenoid(int busID) {
-        return new Solenoid(busID);
+    public DoubleSolenoid getDoubleSolenoid(int forwardID, int reverseID) {
+        return new DoubleSolenoid(forwardID, reverseID);
     }
 
     public Slider getSlider(String name, double defaultValue) {

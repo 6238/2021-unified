@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.*;
 
-
 public class DriveSubsystem extends SubsystemBase {
     private final WPI_TalonSRX leftA;
     private final WPI_TalonSRX leftB;
@@ -48,7 +47,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void rotate(double rot) {
-        xSpeed = 0.0;
+        this.xSpeed = 0.0;
         this.rot = rot;
     }
 
@@ -59,16 +58,14 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (Math.abs(xSpeed) >= ROTATE_THRESHOLD) {
+        if (Math.abs(xSpeed) >= SPEED_THRESHOLD) {
             differentialDrive.arcadeDrive(xSpeed, rot, false);
+        } else if (Math.abs(rot) < ROTATE_THRESHOLD) {
+            brake();
         } else {
-            if (Math.abs(rot) < 0.05) {
-                brake();
-            } else {
-                differentialDrive.setMaxOutput(1.0);
-                differentialDrive.tankDrive(Math.max(rot, 0.3), -Math.max(rot, 0.3), false);
-                differentialDrive.setMaxOutput(maxSpeed);
-            }
+            differentialDrive.setMaxOutput(1.0);
+            differentialDrive.tankDrive(Math.max(rot, 0.3), -Math.max(rot, 0.3), false);
+            differentialDrive.setMaxOutput(maxSpeed);
         }
     }
 

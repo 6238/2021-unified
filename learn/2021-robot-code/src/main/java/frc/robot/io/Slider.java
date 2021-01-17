@@ -4,7 +4,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,6 @@ public class Slider {
 
     public static HashMap<String, Slider> cache = new HashMap<>();
 
-    @Nullable
     public static Slider checkCache(String name) {
         if (cache.containsKey(name)) {
             return cache.get(name);

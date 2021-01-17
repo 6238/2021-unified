@@ -17,29 +17,31 @@ package frc.robot;
  */
 public final class Constants {
     // Drive Motors
-    public static final int DRIVE_LEFT_MOTOR_A = 34;
-    public static final int DRIVE_LEFT_MOTOR_B = 35;
-    public static final int DRIVE_LEFT_MOTOR_C = 36;
+    public static final int DRIVE_LEFT_MOTOR_A = 1;
+    public static final int DRIVE_LEFT_MOTOR_B = 2;
+    public static final int DRIVE_LEFT_MOTOR_C = 3;
 
-    public static final int DRIVE_RIGHT_MOTOR_A = 22;
-    public static final int DRIVE_RIGHT_MOTOR_B = 23;
-    public static final int DRIVE_RIGHT_MOTOR_C = 24;
+    public static final int DRIVE_RIGHT_MOTOR_A = 4;
+    public static final int DRIVE_RIGHT_MOTOR_B = 5;
+    public static final int DRIVE_RIGHT_MOTOR_C = 6;
 
     // Drive
-
-    public static final double ROTATE_THRESHOLD = 0.1;
-
-    // Intake ID's
-    public static final int THROAT_FRONT = 20;
-    public static final int THROAT_BACK = 30;
-    public static final int ELEVATOR_FRONT = 32;
-    public static final int ELEVATOR_BACK = 33;
-    public static final int INTAKE_SOLENOID = 10;
-    public static final int FEEDER = 21;
-
+    public static final double SPEED_THRESHOLD = 0.1;
+    public static final double ROTATE_THRESHOLD = 0.05;
+    
     // Shooter ID's
-    public static final int SHOOTER_LEFT = 6;
-    public static final int SHOOTER_RIGHT = 7;
+    public static final int SHOOTER_LEFT = 7;
+    public static final int SHOOTER_RIGHT = 8;
+    
+    // Intake ID's
+    public static final int THROAT_FRONT = 9;
+    public static final int THROAT_BACK = 10;
+    public static final int ELEVATOR_FRONT = 11;
+    public static final int ELEVATOR_BACK = 12;
+    public static final int FEEDER = 13;
+    public static final int INTAKE_SOLENOID_FORWARD = 0;
+    public static final int INTAKE_SOLENOID_REVERSE = 1;
+
 
     // Shooters
     public static final double INITIAL_SHOOTER = 0.0;

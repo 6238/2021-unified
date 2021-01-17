@@ -2,23 +2,22 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.helpers.MockableSparkMax;
-import frc.robot.interfaces.CANSparkMaxInterface;
 import frc.robot.io.Info;
 import frc.robot.io.Slider;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private final CANSparkMaxInterface leftSide;
-    private final CANSparkMaxInterface rightSide;
+    private final CANSparkMax leftSide;
+    private final CANSparkMax rightSide;
     private final boolean useFollower;
     private double speed = Constants.INITIAL_SHOOTER;
     private CANEncoder leftEncoder;
     private CANPIDController pidController;
 
-    private Slider sliders[] = {null, null, null, null, null};
+    private Slider sliders[] = { null, null, null, null, null };
     private Info rpmInfo = null;
 
     private double p;
@@ -47,18 +46,16 @@ public class ShooterSubsystem extends SubsystemBase {
         this.speed = speed;
     }
 
-
-
     public ShooterSubsystem(Factory f) {
-        this(f, false);
-   }
+        this(f, true);
+    }
 
     public ShooterSubsystem(Factory f, boolean useFollower) {
         this.useFollower = useFollower;
         leftSide = f.getSparkMotor(Constants.SHOOTER_LEFT);
         rightSide = f.getSparkMotor(Constants.SHOOTER_RIGHT);
         if (useFollower) {
-            rightSide.follow((MockableSparkMax)leftSide, true);
+            rightSide.follow(leftSide, true);
         }
     }
 

@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -15,7 +15,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double throatSpeed = 0.0;
     private double elevatorSpeed = 0.0;
     private double feederSpeed = 0.0;
-    private final Solenoid solenoid = null;
+    private final DoubleSolenoid solenoid;
 
     public IntakeSubsystem(Factory f) {
         throatLeft = f.getTalonMotor(Constants.THROAT_FRONT);
@@ -23,7 +23,7 @@ public class IntakeSubsystem extends SubsystemBase {
         elevatorLeft = f.getTalonMotor(Constants.ELEVATOR_FRONT);
         elevatorRight = f.getTalonMotor(Constants.ELEVATOR_BACK);
         feeder = f.getTalonMotor(Constants.FEEDER);
-//        m_solenoid = f.getSolenoid(Constants.INTAKE_SOLENOID);
+        solenoid = f.getDoubleSolenoid(Constants.INTAKE_SOLENOID_FORWARD, Constants.INTAKE_SOLENOID_REVERSE);
     }
 
     public void setThroatSpeed(double speed) {
@@ -38,13 +38,13 @@ public class IntakeSubsystem extends SubsystemBase {
         feederSpeed = speed;
     }
 
-//    public void activateSolenoid() {
-//        solenoid.set(true);
-//    }
+    public void activateSolenoid() {
+        solenoid.set(DoubleSolenoid.Value.kForward);
+    }
 
-//    public void deactivateSolenoid() {
-//        solenoid.set(false);
-//    }
+    public void deactivateSolenoid() {
+        solenoid.set(DoubleSolenoid.Value.kReverse);
+    }
 
     public void stop() {
         setThroatSpeed(0.0);
@@ -53,9 +53,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-//        System.out.println("Throat speed: " + m_throat_speed);
-//        System.out.println("Elevator speed: " + m_elevator_speed);
-//        System.out.println("Feeder speed: " + m_feeder_speed);
         throatLeft.set(throatSpeed);
         throatRight.set(-throatSpeed);
 

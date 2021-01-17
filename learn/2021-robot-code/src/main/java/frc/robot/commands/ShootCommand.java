@@ -1,12 +1,12 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
-import frc.robot.helpers.TestableCommand;
 import frc.robot.io.Slider;
 import frc.robot.subsystems.Factory;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class ShootCommand extends TestableCommand {
+public class ShootCommand extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
     private Slider speedSlider;
 
