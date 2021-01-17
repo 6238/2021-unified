@@ -17,10 +17,8 @@ public class DriveCommand extends CommandBase {
     private final Joystick joystick;
 
     /**
-     * Takes in a speed
-     * 
      * @param driveSubsystem The robot's drivetrain
-     * @param joystick The joystick controller to use
+     * @param joystick       The joystick controller to use
      */
     public DriveCommand(Factory f, DriveSubsystem driveSubsystem, Joystick joystick) {
         this.driveSubsystem = driveSubsystem;
@@ -33,7 +31,6 @@ public class DriveCommand extends CommandBase {
     public void execute() {
         driveSubsystem.setMaxSpeed(maxSpeedSlider.getDouble());
         driveSubsystem.drive(-joystick.getY(), joystick.getTwist());
-        // driveSubsystem.drive(0, 0);
     }
 
     @Override

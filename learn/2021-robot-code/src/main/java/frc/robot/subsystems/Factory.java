@@ -11,6 +11,7 @@ import frc.robot.io.Slider;
 public class Factory {
     /**
      * Creates a CANSparkMax object
+     * 
      * @param busID the ID of the motor controller
      * @return the CANSparkMax object
      */
@@ -20,6 +21,7 @@ public class Factory {
 
     /**
      * Creates a Talon Motor
+     * 
      * @param busID the ID of the motor controller
      * @return the TalonSRX
      */

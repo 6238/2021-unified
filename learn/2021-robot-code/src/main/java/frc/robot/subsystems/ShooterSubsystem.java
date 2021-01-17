@@ -5,7 +5,7 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.io.Info;
 import frc.robot.io.Slider;
 
@@ -13,7 +13,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax leftSide;
     private final CANSparkMax rightSide;
     private final boolean useFollower;
-    private double speed = Constants.INITIAL_SHOOTER;
+    private double speed = ShooterConstants.INITIAL_SHOOTER_SPEED;
     private CANEncoder leftEncoder;
     private CANPIDController pidController;
 
@@ -36,8 +36,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public ShooterSubsystem(Factory f, boolean useFollower) {
         this.useFollower = useFollower;
-        leftSide = f.getSparkMotor(Constants.SHOOTER_LEFT);
-        rightSide = f.getSparkMotor(Constants.SHOOTER_RIGHT);
+        leftSide = f.getSparkMotor(ShooterConstants.SHOOTER_LEFT);
+        rightSide = f.getSparkMotor(ShooterConstants.SHOOTER_RIGHT);
         if (useFollower) {
             rightSide.follow(leftSide, true);
         }
@@ -50,7 +50,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setTarget(double target) {
         this.target = target;
     }
-    
+
     public double getSpeed() {
         return speed;
     }

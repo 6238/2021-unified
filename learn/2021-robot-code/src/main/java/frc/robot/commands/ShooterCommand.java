@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.io.Slider;
 import frc.robot.subsystems.Factory;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -13,7 +13,7 @@ public class ShooterCommand extends CommandBase {
 
     public ShooterCommand(Factory f, ShooterSubsystem shooterSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
-        speedSlider = f.getSlider("Shooter speed: ", Constants.INITIAL_SHOOTER, 0.0, 1.0);
+        speedSlider = f.getSlider("Shooter speed: ", ShooterConstants.INITIAL_SHOOTER_SPEED, 0.0, 1.0);
     }
 
     @Override

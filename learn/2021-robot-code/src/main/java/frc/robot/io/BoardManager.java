@@ -2,7 +2,7 @@ package frc.robot.io;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.Constants;
+import frc.robot.Constants.OIConstants;
 
 public class BoardManager {
     private static BoardManager manager = null;
@@ -19,6 +19,6 @@ public class BoardManager {
     }
 
     public ShuffleboardTab getTab() {
-        return Shuffleboard.getTab(Constants.DEFAULT_TAB);
+        return Shuffleboard.getTab(OIConstants.DEFAULT_TAB);
     }
 }
