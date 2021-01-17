@@ -61,4 +61,7 @@ public final class Constants {
         public static final int ELEVATOR_REVERSE_BUTTON = 5;
         public static final int FEEDER_BUTTON = 6;
     }
+
+    public static final int TIMEOUT_MS = 0;
+    public static final int PID_LOOP_IDX = 0;
 }
