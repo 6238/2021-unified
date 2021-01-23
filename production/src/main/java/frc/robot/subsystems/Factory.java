@@ -4,9 +4,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import frc.robot.io.Info;
+import frc.robot.io.Dial;
 import frc.robot.io.Slider;
+import frc.robot.io.ToggleButton;
 
 public class Factory {
     /**
@@ -52,7 +54,16 @@ public class Factory {
         return new Slider(name, defaultValue, min, max, x, y, w, h);
     }
 
-    public Info getInfo(String name, double defaultValue) {
-        return new Info(name, defaultValue);
+    public Dial getInfo(String name, double defaultValue) {
+        return new Dial(name, defaultValue);
+    }
+
+    public ToggleButton getToggleButton (String name, boolean defaultValue) {
+        return new ToggleButton(name, defaultValue);
+    }
+
+    private final Compressor compressor = new Compressor();
+    public Compressor getCompressor() {
+        return compressor;
     }
 }

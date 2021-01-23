@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class IntakeCommand extends CommandBase {
     private double elevatorSpeed;
     private double feederSpeed;
-    private double throatSpeed;
+    // private double throatSpeed;
 
     private Slider elevatorSlider;
     private Slider feederSlider;
@@ -40,7 +40,7 @@ public class IntakeCommand extends CommandBase {
     public void execute() {
         intakeSubsystem.setElevatorSpeed(elevatorSpeed);
         intakeSubsystem.setFeederSpeed(feederSpeed);
-        intakeSubsystem.setThroatSpeed(throatSpeed);
+        // intakeSubsystem.setThroatSpeed(throatSpeed);
     }
 
     /**

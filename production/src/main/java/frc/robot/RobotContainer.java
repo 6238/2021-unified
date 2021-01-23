@@ -84,6 +84,21 @@ public class RobotContainer {
 
         new JoystickButton(joystick, OIConstants.THROAT_BUTTON).whenPressed(() -> intakeCommand.setThroat(1))
                 .whenReleased(() -> intakeCommand.setThroat(0));
+
+        new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_EXTEND_BUTTON)
+                .whenPressed(() -> shooterCommand.toggleSolenoid(1));
+        new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_RETRACT_BUTTON)
+                .whenPressed(() -> shooterCommand.toggleSolenoid(-1));
+    }
+
+    public void scheduleDefaultCommands() {
+        driveSubsystem.setDefaultCommand(driveCommand);
+        intakeSubsystem.setDefaultCommand(intakeCommand);
+        shooterSubsystem.setDefaultCommand(shooterCommand);
+
+        driveCommand.schedule();
+        intakeCommand.schedule();
+        shooterCommand.schedule();
     }
 
     /**

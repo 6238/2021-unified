@@ -4,21 +4,29 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.io.Info;
+import frc.robot.io.Dial;
 import frc.robot.io.Slider;
 
 public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax leftSide;
     private final CANSparkMax rightSide;
-    private final boolean useFollower;
-    private double speed = ShooterConstants.INITIAL_SHOOTER_SPEED;
+    private final Compressor compressor;
+    private final DoubleSolenoid solenoid;
     private CANEncoder leftEncoder;
     private CANPIDController pidController;
 
+    private final boolean useFollower;
+    private double speed = ShooterConstants.INITIAL_SHOOTER_SPEED;
+    private Value solenoidPosition = Value.kOff;
+
     private Slider sliders[] = { null, null, null, null, null };
-    private Info rpmInfo = null;
+    private Dial rpmInfo = null;
 
     private double p;
     private double i;
@@ -38,6 +46,10 @@ public class ShooterSubsystem extends SubsystemBase {
         this.useFollower = useFollower;
         leftSide = f.getSparkMotor(ShooterConstants.SHOOTER_LEFT);
         rightSide = f.getSparkMotor(ShooterConstants.SHOOTER_RIGHT);
+        solenoid = f.getDoubleSolenoid(ShooterConstants.SHOOTER_SOLENOID_FORWARD,
+                ShooterConstants.SHOOTER_SOLENOID_REVERSE);
+        compressor = f.getCompressor();
+
         if (useFollower) {
             rightSide.follow(leftSide, true);
         }
@@ -57,6 +69,31 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void setSpeed(double speed) {
         this.speed = speed;
+    }
+
+    public Value getSolenoidPosition() {
+        return solenoid.get();
+    }
+
+    public Compressor getCompressor() {
+        return compressor;
+    }
+
+    /**
+     * @param status -1 is reverse, 0 is off, 1 is forward
+     */
+    public void setSolenoidPosition(int status) {
+        switch (status) {
+            case -1:
+                solenoidPosition = Value.kReverse;
+                break;
+            case 1:
+                solenoidPosition = Value.kForward;
+                break;
+            default:
+                solenoidPosition = Value.kOff;
+                break;
+        }
     }
 
     public void usePID(Factory f) {
@@ -110,5 +147,7 @@ public class ShooterSubsystem extends SubsystemBase {
         } else {
             pidController.setReference(target, ControlType.kVelocity);
         }
+
+        solenoid.set(solenoidPosition);
     }
 }

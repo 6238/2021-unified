@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.io.BoardManager;
+import frc.robot.io.ToggleButton;
 
 public class DriveSubsystem extends SubsystemBase {
     private final WPI_TalonSRX leftA;
@@ -31,11 +32,15 @@ public class DriveSubsystem extends SubsystemBase {
     private final NetworkTableEntry imuEntry;
     private final NetworkTableEntry leftEncoderEntry;
     private final NetworkTableEntry rightEncoderEntry;
+    private final ToggleButton reverseDriveButton;
+    private final ToggleButton curvatureDriveButton;
 
     private final ADIS16470_IMU imu;
 
     private double xSpeed = 0.0;
     private double rot = 0.0;
+    private boolean reverseDrive = false;
+    private boolean curvatureDrive = false;
 
     public DriveSubsystem(Factory f) {
         leftA = f.getTalonMotor(DriveConstants.DRIVE_LEFT_MOTOR_A);
@@ -53,9 +58,13 @@ public class DriveSubsystem extends SubsystemBase {
         imuEntry = BoardManager.getManager().getTab().add("imu", 0).getEntry();
         leftEncoderEntry = BoardManager.getManager().getTab().add("leftEncoder", 0).getEntry();
         rightEncoderEntry = BoardManager.getManager().getTab().add("rightEncoder", 0).getEntry();
-        
-        leftC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
-        rightC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
+        reverseDriveButton = f.getToggleButton("reverseDrive", reverseDrive);
+        curvatureDriveButton = f.getToggleButton("curvatureDrive", curvatureDrive);
+
+        leftC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX,
+                Constants.TIMEOUT_MS);
+        rightC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX,
+                Constants.TIMEOUT_MS);
 
         imu = new ADIS16470_IMU();
         imu.setYawAxis(IMUAxis.kZ);
@@ -89,11 +98,16 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        differentialDrive.arcadeDrive(xSpeed, rot, false);
-        // differentialDrive.curvatureDrive(xSpeed, rot, false);
+        if (curvatureDrive) {
+            differentialDrive.curvatureDrive(reverseDrive ? -xSpeed : xSpeed, rot, false);
+        } else {
+            differentialDrive.arcadeDrive(reverseDrive ? -xSpeed : xSpeed, rot, false);
+        }
 
         imuEntry.setNumber(imu.getAngle());
         leftEncoderEntry.setNumber(leftC.getSelectedSensorVelocity());
         rightEncoderEntry.setNumber(rightC.getSelectedSensorVelocity());
+        reverseDrive = reverseDriveButton.get();
+        curvatureDrive = curvatureDriveButton.get();
     }
 }

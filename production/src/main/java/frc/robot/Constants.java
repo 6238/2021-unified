@@ -38,13 +38,16 @@ public final class Constants {
         public static final int SHOOTER_LEFT = 6;
         public static final int SHOOTER_RIGHT = 7;
 
+        public static final int SHOOTER_SOLENOID_FORWARD = 2;
+        public static final int SHOOTER_SOLENOID_REVERSE = 3;
+
         public static final double INITIAL_SHOOTER_SPEED = 0.5;
     }
 
     public static final class IntakeConstants {
         // motor IDs
-        public static final int THROAT_FRONT = 9;
-        public static final int THROAT_BACK = 10;
+        // public static final int THROAT_FRONT = 9;
+        // public static final int THROAT_BACK = 10;
         public static final int ELEVATOR_FRONT = 32;
         public static final int ELEVATOR_BACK = 20;
         public static final int FEEDER = 21;
@@ -60,6 +63,8 @@ public final class Constants {
         public static final int FEEDER_REVERSE_BUTTON = 4;
         public static final int ELEVATOR_BUTTON = 5;
         public static final int FEEDER_BUTTON = 6;
+        public static final int SHOOTER_SOLENOID_EXTEND_BUTTON = 7;
+        public static final int SHOOTER_SOLENOID_RETRACT_BUTTON = 8;
     }
 
     public static final int TIMEOUT_MS = 0;

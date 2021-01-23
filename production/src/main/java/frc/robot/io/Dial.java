@@ -5,14 +5,14 @@ import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 
 import java.util.Map;
 
-public class Info {
+public class Dial {
     private SimpleWidget value;
 
-    public Info(String name, double defaultValue) {
+    public Dial(String name, double defaultValue) {
         value = BoardManager.getManager().getTab().add(name, defaultValue).withWidget(BuiltInWidgets.kDial);
     }
 
-    public Info withMinMax(double min, double max) {
+    public Dial withMinMax(double min, double max) {
         value = value.withProperties(Map.of("min", min, "max", max));
         return this;
     }

@@ -148,6 +148,8 @@ public class Robot extends TimedRobot {
         lEncVel.add(0.0);
         rEncPos.add(0.0);
         rEncVel.add(0.0);
+
+        robotContainer.scheduleDefaultCommands();
     }
 
     /**
