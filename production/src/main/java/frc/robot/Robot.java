@@ -98,7 +98,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledInit() {
-        System.out.println(WriteCSVFile.writeData(imuAngle, imuRate, imuXAccel, imuYAccel, imuZAccel, lEncPos, lEncVel, rEncPos, rEncVel));
+        System.out.println("disabled");
+        SaveData.writeData(imuAngle, imuRate, imuXAccel, imuYAccel, imuZAccel, lEncPos, lEncVel, rEncPos, rEncVel);
     }
 
     @Override

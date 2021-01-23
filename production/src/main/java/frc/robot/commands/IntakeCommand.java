@@ -17,7 +17,7 @@ public class IntakeCommand extends CommandBase {
 
     private Slider elevatorSlider;
     private Slider feederSlider;
-    private Slider throatSlider;
+    // private Slider throatSlider;
 
     private final IntakeSubsystem intakeSubsystem;
 
@@ -31,7 +31,7 @@ public class IntakeCommand extends CommandBase {
         this.intakeSubsystem = intakeSubsystem;
         elevatorSlider = f.getSlider("Elevator Speed", 1.0, -1.0, 1.0);
         feederSlider = f.getSlider("Feeder Speed", 1.0, -1.0, 1.0);
-        throatSlider = f.getSlider("Throat Speed", 1.0, -1.0, 1.0);
+        // throatSlider = f.getSlider("Throat Speed", 1.0, -1.0, 1.0);
 
         addRequirements(intakeSubsystem);
     }

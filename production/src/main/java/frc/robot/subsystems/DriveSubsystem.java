@@ -28,6 +28,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final DifferentialDrive differentialDrive;
 
+    private final NetworkTableEntry imuEntry;
     private final NetworkTableEntry leftEncoderEntry;
     private final NetworkTableEntry rightEncoderEntry;
 
@@ -49,15 +50,15 @@ public class DriveSubsystem extends SubsystemBase {
 
         differentialDrive = new DifferentialDrive(left, right);
 
+        imuEntry = BoardManager.getManager().getTab().add("imu", 0).getEntry();
         leftEncoderEntry = BoardManager.getManager().getTab().add("leftEncoder", 0).getEntry();
         rightEncoderEntry = BoardManager.getManager().getTab().add("rightEncoder", 0).getEntry();
-
+        
         leftC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
         rightC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, Constants.PID_LOOP_IDX, Constants.TIMEOUT_MS);
 
         imu = new ADIS16470_IMU();
         imu.setYawAxis(IMUAxis.kZ);
-        // BoardManager.getManager().getTab().add(imu);
     }
 
     public void drive(double xSpeed, double rot) {
@@ -89,20 +90,10 @@ public class DriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         differentialDrive.arcadeDrive(xSpeed, rot, false);
-        /* if (Math.abs(xSpeed) >= DriveConstants.SPEED_THRESHOLD) {
-        } else if (Math.abs(rot) < DriveConstants.ROTATE_THRESHOLD) {
-            brake();
-        } else {
-            differentialDrive.setMaxOutput(1.0);
-            differentialDrive.tankDrive(Math.max(rot, 0.3), -Math.max(rot, 0.3), false);
-            differentialDrive.setMaxOutput(maxSpeed);
-        } */
+        // differentialDrive.curvatureDrive(xSpeed, rot, false);
 
-        leftEncoderEntry.setNumber(leftA.getSelectedSensorVelocity());
-        rightEncoderEntry.setNumber(rightA.getSelectedSensorVelocity());
-    }
-
-    public void brake() {
-        differentialDrive.tankDrive(0.0, 0.0, false);
+        imuEntry.setNumber(imu.getAngle());
+        leftEncoderEntry.setNumber(leftC.getSelectedSensorVelocity());
+        rightEncoderEntry.setNumber(rightC.getSelectedSensorVelocity());
     }
 }
