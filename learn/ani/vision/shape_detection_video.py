@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 video_path = Path("E:/code/projects/frc-vision/datasets/vision-example-video-camera0.mp4")
 cap = cv2.VideoCapture(str(video_path))
 if not cap.isOpened():
