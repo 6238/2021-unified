@@ -1,11 +1,15 @@
+from pathlib import Path
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-cap = cv2.VideoCapture("./datasets/vision-example-video-camera0.mp4")
+video_path = Path("E:/code/projects/frc-vision/datasets/vision-example-video-camera0.mp4")
+cap = cv2.VideoCapture(str(video_path))
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
+
+back_sub = cv2.createBackgroundSubtractorKNN()
 
 frame_num = 0
 while True:
@@ -30,7 +34,11 @@ while True:
     for i in corners:
         x,y = i.ravel()
         cv2.circle(frame,(x, y),3,255,-1)
-        
+
+    fore_mask = back_sub.apply(frame)
+    fore_mask = cv2.morphologyEx(fore_mask, cv2.MORPH_OPEN, (5, 5))
+
+    cv2.imshow("foreground", fore_mask)
 
     # Display the new frame
     cv2.imshow('frame', frame)
