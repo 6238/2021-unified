@@ -1,92 +1,162 @@
 from pathlib import Path
 import cv2
 import numpy as np
-import imutils
 
-from img_utils import GeneralUtils, ShapeDetector
+from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 
 
 shape_detector = ShapeDetector()
 utils = GeneralUtils()
+img_display = DisplayUtils()
 
-img_path = Path("./target-imgs/mid-target.jpg")
-# img_path = Path("./2012-retroreflective-targets.jpg")
-img = cv2.imread(str(img_path))
-img = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
-target_img = img.copy()  # for drawing bounding box on
 
-cv2.imshow("original", img)
-cv2.waitKey(1)
+def apply_ops(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # cv2.imshow("gray before", gray)
 
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-blurred = cv2.GaussianBlur(gray, (25, 25), 0)
-_, thresh = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY)
-thresh_mean = cv2.adaptiveThreshold(
-    blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 0
-)
-thresh_gaussian = cv2.adaptiveThreshold(
-    blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 0
-)
+    # blurred = cv2.bilateralFilter(gray, 25, 15, 75)
+    blurred = cv2.GaussianBlur(gray, (13, 13), 0)
+    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+    # cv2.imshow("blurred", blurred)
+    # cv2.imshow("thresh", thresh)
 
-# cv2.imshow("thresh", thresh)
-# cv2.imshow("thresh_mean", thresh_mean)
-# cv2.imshow("thresh_gaussian", thresh_gaussian)
-# cv2.waitKey(1)
+    median = np.median(gray)
+    sigma = 0.33
+    lower_thresh = int(max(0, (1.0 - sigma) * median))
+    upper_thresh = int(min(255, (1.0 + sigma) * median))
 
-canny = cv2.Canny(thresh, 10, 20)
-# cv2.imshow("canny", canny)
-# cv2.waitKey(1)
+    canny = cv2.Canny(thresh, lower_thresh, upper_thresh)
+    # cv2.imshow("canny", canny)
+    canny_erode = cv2.erode(canny, (15, 15))
+    canny_dilate = cv2.dilate(canny_erode, (15, 15), iterations=1)
+    # cv2.imshow("canny dilated", canny)
 
-canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, (15, 15))
-# cv2.imshow("canny dilated", canny)
-# cv2.waitKey(1)
+    contours, hierarchy = cv2.findContours(
+        canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+    )
+    contours = utils.filter_contours(contours, 50)
 
-contours, hierarchy = cv2.findContours(
-    canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-)  # RETR_EXTERNAL
-cv2.drawContours(target_img, contours, -1, (0, 0, 255), 3)
+    # hexagons = shape_detector.get_contours_of_shape(contours, 6)
 
-print("number of shapes found:", len(contours))
-print("shapes of each shape:", [contours[i].shape for i, _ in enumerate(contours)])
-print("hierarchy", hierarchy)
+    # [print(cv2.contourArea(contour)) for contour in hexagons]
 
-# visualizing the different contours
-for i, contour in enumerate(contours):
-    print(f"Is {i} a hexagon? {shape_detector.detect_shape(contour, 6)}")
-    temp_img = img.copy()
-    # [contour] to show connected lines, contour (w/o []) to only show points
-    cv2.drawContours(temp_img, [contour], -1, (0, 0, 255), 3)
+    # bboxes = utils.generate_bboxes(contours)
+    # iou_bboxes = utils.get_distinct_bboxes(bboxes, 0.8)
+    # iou_bboxes_centeriods = utils.get_bbox_centers(iou_bboxes)
 
-    # cv2.imshow(f"contour {i}", temp_img)
+    cv2.drawContours(frame, contours, -1, (0, 255, 0), 3)
+    # cv2.drawContours(frame, hexagons, -1, (0, 255, 0), 3)
+    # utils.draw_bboxes(frame, iou_bboxes, (255, 255, 255), 2)
+    # utils.draw_circles(frame, iou_bboxes_centeriods, color=(255, 255, 255))
+
+    grid = img_display.create_img_grid(
+        [[frame, blurred, thresh], [canny, canny_erode, canny_dilate]]
+    )
+    return grid
+
+
+if __name__ == "__main__":
+
+    img_path = Path("./target-imgs/mid-target.jpg")
+    # img_path = Path("./2012-retroreflective-targets.jpg")
+    img = cv2.imread(str(img_path))
+    img = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
+    target_img = img.copy()  # for drawing bounding box on
+
+    cv2.imshow("original", img)
     # cv2.waitKey(1)
 
-### drawing bboxes ###
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (25, 25), 0)
+    _, thresh = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY)
+    thresh_mean = cv2.adaptiveThreshold(
+        blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 0
+    )
+    thresh_gaussian = cv2.adaptiveThreshold(
+        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 0
+    )
 
-# draw bboxes of all contours in green
-bboxes = utils.generate_bboxes(contours)
-print("all bboxes:", bboxes)
-utils.draw_bboxes(target_img, bboxes, (0, 255, 0), 2)
+    # cv2.imshow("thresh", thresh)
+    # cv2.imshow("thresh_mean", thresh_mean)
+    # cv2.imshow("thresh_gaussian", thresh_gaussian)
+    # cv2.waitKey(1)
 
-# draw common bboxes of contours in blue
-common_bboxes, weights = cv2.groupRectangles(bboxes, 1, 0.2)
-print("common bboxes:", common_bboxes)
-utils.draw_bboxes(target_img, common_bboxes, (255, 0, 0), 4)
+    canny = cv2.Canny(thresh, 10, 20)
+    # cv2.imshow("canny", canny)
+    # cv2.waitKey(1)
 
+    canny = cv2.dilate(canny, (15, 15), iterations=1)
+    # canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, (15, 15))
+    # cv2.imshow("canny dilated", canny)
+    # cv2.waitKey(1)
 
-### drawing centeriods ###
+    contours, hierarchy = cv2.findContours(
+        canny, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
+    )
+    cv2.drawContours(target_img, contours, -1, (0, 0, 255), 3)
+    # cv2.imshow("contours before", target_img)
+    # cv2.waitKey(1)
 
-# draw centeriods of contours in red
-contour_centeriods = utils.get_contour_centers(contours)
-utils.draw_circles(target_img, contour_centeriods, color=(0, 0, 255))
+    # hierarchy is of form [Next, Previous, First_Child, Parent]
 
-# draw centeriods of all bboxes in green
-bboxes_centeriods = utils.get_bbox_centers(bboxes)
-utils.draw_circles(target_img, bboxes_centeriods, color=(0, 255, 0))
+    print("number of shapes found:", len(contours))
+    print("shapes of each shape:", [contours[i].shape for i, _ in enumerate(contours)])
+    print("hierarchy", hierarchy)
 
-# draw centeriods of common bboxes in blue
-common_bboxes_centeriods = utils.get_bbox_centers(common_bboxes)
-utils.draw_circles(target_img, common_bboxes_centeriods, color=(255, 0, 0))
+    # visualizing the different approxes
+    for i, contour in enumerate(contours):
+        print(f"Is {i} a hexagon? {shape_detector.detect_shape(contour, 6)}")
+        temp_img = img.copy()
+        # [contour] to show connected lines, contour (w/o []) to only show points
 
+        perimeter = cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, 0.01 * perimeter, True)
+        is_convex = cv2.isContourConvex(approx)
+        cv2.drawContours(temp_img, [approx], -1, (0, 255, 255), 3)
 
-cv2.imshow("target", target_img)
-cv2.waitKey(-1)
+        # cv2.imshow(f"contour {i}, sides {len(approx)}, convex {is_convex}", temp_img)
+        # cv2.waitKey(1)
+
+    ### drawing bboxes ###
+
+    # draw bboxes of all contours in green
+    bboxes = utils.generate_bboxes(contours)
+    print("all bboxes:", bboxes)
+    utils.draw_bboxes(target_img, bboxes, (0, 255, 0), 2)
+
+    # draw common bboxes of contours in blue
+    # the groupRectangles doesn't work well, my function works better
+    common_bboxes, weights = cv2.groupRectangles(bboxes, 1, 0.2)
+    print("common bboxes:", common_bboxes)
+    utils.draw_bboxes(target_img, common_bboxes, (255, 0, 0), 2)
+
+    # draw iou common bboxes of contours in white
+    iou_bboxes = utils.get_distinct_bboxes(bboxes, 0.8)
+    print("iou bboxes:", common_bboxes)
+    utils.draw_bboxes(target_img, iou_bboxes, (255, 255, 255), 2)
+
+    ### drawing centeriods ###
+
+    # draw centeriods of contours in red
+    contour_centeriods = utils.get_contour_centers(contours)
+    utils.draw_circles(target_img, contour_centeriods, color=(0, 0, 255))
+
+    # draw centeriods of all bboxes in green
+    bboxes_centeriods = utils.get_bbox_centers(bboxes)
+    utils.draw_circles(target_img, bboxes_centeriods, color=(0, 255, 0))
+
+    # draw centeriods of common bboxes in blue
+    common_bboxes_centeriods = utils.get_bbox_centers(common_bboxes)
+    utils.draw_circles(target_img, common_bboxes_centeriods, color=(255, 0, 0))
+
+    # draw centeriods of iou common bboxes in white
+    iou_bboxes_centeriods = utils.get_bbox_centers(iou_bboxes)
+    utils.draw_circles(target_img, iou_bboxes_centeriods, color=(255, 255, 255))
+
+    [
+        print(f"is contour {i} a hex: {shape_detector.detect_shape(contour, 6)}")
+        for i, contour in enumerate(contours)
+    ]
+
+    cv2.imshow("target", target_img)
+    cv2.waitKey(-1)

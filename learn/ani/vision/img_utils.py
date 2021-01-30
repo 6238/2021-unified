@@ -1,7 +1,6 @@
 from pathlib import Path
 import cv2
 import numpy as np
-import imutils
 
 
 class GeneralUtils:
@@ -12,7 +11,6 @@ class GeneralUtils:
     def detect_draw_contours(self, src, dest=None):
         """Draws contours from given src on given dst (drawn on src if no dst specified) and returns said contours."""
         contours = cv2.findContours(src, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        contours = imutils.grab_contours(contours)
         for contour in contours:
             if dest is not None:
                 cv2.drawContours(dest, [contour], -1, (255, 0, 0), 3)
@@ -35,8 +33,8 @@ class GeneralUtils:
         centeriods = []
         for contour in contours:
             M = cv2.moments(contour)
-            center_x = int(M["m10"] / M["m00"])
-            center_y = int(M["m01"] / M["m00"])
+            center_x = int(M["m10"] / M["m00"]) if M["m00"] != 0 else 0
+            center_y = int(M["m01"] / M["m00"]) if M["m00"] != 0 else 0
             centeriods.append(np.array([center_x, center_y]))
         return centeriods
 
@@ -55,7 +53,16 @@ class GeneralUtils:
         assert bbox2[0] <= bbox2[2]
         assert bbox2[1] <= bbox2[3]
 
-        intersection_area = (bbox1[0] - bbox1[2] + 1) * (bbox1[3] - bbox1[1] + 1)
+        x_left = max(bbox1[0], bbox2[0])
+        y_top = max(bbox1[1], bbox2[1])
+
+        x_right = min(bbox1[2], bbox2[2])
+        y_bottom = min(bbox1[3], bbox2[3])
+
+        if x_right < x_left or y_bottom < y_top:
+            return 0.0
+
+        intersection_area = (x_right - x_left + 1) * (y_bottom - y_top + 1)
         bbox1_area = (bbox1[2] - bbox1[0] + 1) * (bbox1[3] - bbox1[1] + 1)
         bbox2_area = (bbox2[2] - bbox2[0] + 1) * (bbox2[3] - bbox2[1] + 1)
 
@@ -72,33 +79,65 @@ class GeneralUtils:
 
         return bounding_rects
 
+    def get_distinct_bboxes(self, bboxes, threshold):
+        distinct_bboxes = []
+        for i, bbox1 in enumerate(bboxes):
+            distinct = True
+            for j in range(i + 1, len(bboxes)):
+                bbox2 = bboxes[j]
+                if self.calculate_iou(bbox1, bbox2) > threshold:
+                    distinct = False
+                    break
+
+            if distinct:
+                distinct_bboxes.append(bbox1)
+
+        return distinct_bboxes
+
     def connect_similar_contours(self, contours):
         rects = self.generate_bboxes(contours)
         new_rects, weights = cv2.groupRectangles(rects, 1)
         return new_rects, weights
 
+    def filter_contours(self, contours, area_thresh):
+        filtered = []
+        for contour in contours:
+            if cv2.contourArea(contour) > area_thresh:
+                filtered.append(contour)
+
+        return filtered
+
 
 class ShapeDetector:
     def detect_shape(self, contour, num_sides):
-        """Returns True if shape with provided number of sides is detected with supplied closed contour, False otherwise."""
+        """Returns True if shape with provided number of sides is detected with supplied closed contour and is convex, False otherwise."""
         # must be closed contour
         perimeter = cv2.arcLength(contour, True)
-        sides_approx = cv2.approxPolyDP(contour, 0.04 * perimeter, True)
+        approx = cv2.approxPolyDP(contour, 0.005 * perimeter, True)
 
-        if len(sides_approx) == num_sides:
+        if len(approx) == num_sides and cv2.isContourConvex(approx):
             return True
 
         return False
 
-    def detect_draw_contours(self, src, dest, num_sides):
-        """Draws contours from given src on given dst (drawn on src if no dst specified) and returns said contours
-        if detected contours have given number of sides."""
-        contours = cv2.findContours(src, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    def get_contours_of_shape(self, contours, num_sides):
+        new_contours = []
         for contour in contours:
             if self.detect_shape(contour, num_sides):
-                if dest is not None:
-                    cv2.drawContours(dest, [contour], -1, (255, 0, 0), 3)
-                else:
-                    cv2.drawContours(src, [contour], -1, (255, 0, 0), 3)
+                new_contours.append(contour)
 
-        return contours
+        return new_contours
+
+
+class DisplayUtils:
+    def create_img_grid(self, img_matrix):
+        grid = []
+        for row in img_matrix:
+            new_row = []
+            for img in row:
+                if len(img.shape) != 3:
+                    img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+                new_row.append(img)
+            grid.append(np.hstack(new_row))
+
+        return np.vstack(grid)
