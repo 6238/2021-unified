@@ -1,3 +1,4 @@
+from color_filtering_img import apply_color_filter
 from pathlib import Path
 import cv2
 import numpy as np
@@ -7,7 +8,7 @@ from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 
 shape_detector = ShapeDetector()
 utils = GeneralUtils()
-img_display = DisplayUtils()
+display_utils = DisplayUtils()
 
 
 def apply_ops(frame):
@@ -27,30 +28,32 @@ def apply_ops(frame):
 
     canny = cv2.Canny(thresh, lower_thresh, upper_thresh)
     # cv2.imshow("canny", canny)
-    canny_erode = cv2.erode(canny, (15, 15))
-    canny_dilate = cv2.dilate(canny_erode, (15, 15), iterations=1)
+    # canny_erode = cv2.erode(canny, (15, 15))
+    # canny_dilate = cv2.dilate(canny_erode, (15, 15), iterations=1)
     # cv2.imshow("canny dilated", canny)
 
     contours, hierarchy = cv2.findContours(
         canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
     )
-    contours = utils.filter_contours(contours, 50)
+    contours = utils.filter_contours_area(contours, 1000)
 
-    # hexagons = shape_detector.get_contours_of_shape(contours, 6)
+    hexagons = shape_detector.get_contours_of_shape(contours, 6)
 
-    # [print(cv2.contourArea(contour)) for contour in hexagons]
+    ### Drawing ###
+    contour_img = frame.copy()
+    hexagons_img = frame.copy()
 
     # bboxes = utils.generate_bboxes(contours)
     # iou_bboxes = utils.get_distinct_bboxes(bboxes, 0.8)
     # iou_bboxes_centeriods = utils.get_bbox_centers(iou_bboxes)
 
-    cv2.drawContours(frame, contours, -1, (0, 255, 0), 3)
-    # cv2.drawContours(frame, hexagons, -1, (0, 255, 0), 3)
+    cv2.drawContours(contour_img, contours, -1, (0, 0, 255), 3)
+    cv2.drawContours(hexagons_img, hexagons, -1, (0, 255, 0), 3)
     # utils.draw_bboxes(frame, iou_bboxes, (255, 255, 255), 2)
     # utils.draw_circles(frame, iou_bboxes_centeriods, color=(255, 255, 255))
 
-    grid = img_display.create_img_grid(
-        [[frame, blurred, thresh], [canny, canny_erode, canny_dilate]]
+    grid = display_utils.create_img_grid(
+        [[frame, blurred, thresh], [canny, contour_img, hexagons_img]]
     )
     return grid
 
@@ -66,6 +69,8 @@ if __name__ == "__main__":
     cv2.imshow("original", img)
     # cv2.waitKey(1)
 
+    img = apply_color_filter(img)
+    cv2.imshow("filtered", img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (25, 25), 0)
     _, thresh = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY)
@@ -112,9 +117,9 @@ if __name__ == "__main__":
         perimeter = cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, 0.01 * perimeter, True)
         is_convex = cv2.isContourConvex(approx)
-        cv2.drawContours(temp_img, [approx], -1, (0, 255, 255), 3)
+        cv2.drawContours(temp_img, approx, -1, (0, 255, 255), 12)
 
-        # cv2.imshow(f"contour {i}, sides {len(approx)}, convex {is_convex}", temp_img)
+        cv2.imshow(f"contour {i}, sides {len(approx)}, convex {is_convex}", temp_img)
         # cv2.waitKey(1)
 
     ### drawing bboxes ###

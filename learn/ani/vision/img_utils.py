@@ -99,13 +99,35 @@ class GeneralUtils:
         new_rects, weights = cv2.groupRectangles(rects, 1)
         return new_rects, weights
 
-    def filter_contours(self, contours, area_thresh):
+    def filter_contours_area(self, contours, area_thresh, keep_big=True):
         filtered = []
         for contour in contours:
-            if cv2.contourArea(contour) > area_thresh:
+            if keep_big and cv2.contourArea(contour) > area_thresh:
+                filtered.append(contour)
+            elif not keep_big and cv2.contourArea(contour) < area_thresh:
                 filtered.append(contour)
 
         return filtered
+
+    def filter_contours_closed(self, contours, hierarchy):
+        # TODO need to fix to make this work
+        filtered = []
+        for contour, h in zip(contours, hierarchy):
+            print(h)
+            if cv2.isContourConvex(contour) and h[2] != -1:
+                filtered.append(contour)
+
+        return filtered
+
+    def blacken_small_noise(self, img, contours, area_thresh):
+        # TODO finish
+        contours = self.filter_contours_area(contours, area_thresh, keep_big=False)
+        for contour in contours:
+            if cv2.isContourConvex(contour):
+                cv2.fillPoly(img, contour, (0, 0, 0))
+                # cv2.fillConvexPoly(img, contour, (0, 0, 0))
+
+        return img
 
 
 class ShapeDetector:
@@ -113,7 +135,7 @@ class ShapeDetector:
         """Returns True if shape with provided number of sides is detected with supplied closed contour and is convex, False otherwise."""
         # must be closed contour
         perimeter = cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, 0.005 * perimeter, True)
+        approx = cv2.approxPolyDP(contour, 0.05 * perimeter, True)
 
         if len(approx) == num_sides and cv2.isContourConvex(approx):
             return True

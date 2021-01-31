@@ -2,42 +2,57 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from img_utils import GeneralUtils, ShapeDetector
+from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 
 
 shape_detector = ShapeDetector()
 utils = GeneralUtils()
+display_utils = DisplayUtils()
 
 
 def apply_color_filter(img):
+
+    # TODO ideas
+    # find contours after each mask, then blacken everything under a certain area.
+    # crop into brown target after using contours to find a rectangle that is large on brown mask
+
     blurred = cv2.medianBlur(img, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lower_brown = np.array([5, 0, 0])
-    upper_brown = np.array([20, 255, 255])
+
+    lower_brown = np.array([5, 0, 160])
+    upper_brown = np.array([20, 180, 255])
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(img, img, mask=brown_mask)
 
-    lower_gray = np.array([0, 0, 0])
-    upper_gray = np.array([255, 20, 255])
+    lower_gray = np.array([0, 0, 150])
+    upper_gray = np.array([200, 25, 255])
     gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
     gray_res = cv2.bitwise_and(img, img, mask=gray_mask)
 
-    brown_res = cv2.dilate(brown_res, (7, 7))
-    gray_res = cv2.dilate(gray_res, (17, 17))
-    # brown_res = cv2.bilateralFilter(brown_res, 25, 15, 75)
-    # gray_res = cv2.bilateralFilter(gray_res, 25, 15, 75)
-    brown_res = cv2.medianBlur(brown_res, 3)
-    gray_res = cv2.medianBlur(gray_res, 3)
+    brown_dilated = cv2.dilate(brown_res, (17, 17))
+    gray_dilated = cv2.dilate(gray_res, (17, 17))
+
+    brown_blurred = cv2.medianBlur(brown_dilated, 3)
+    gray_blurred = cv2.medianBlur(gray_dilated, 3)
+
+    ### Temp Displaying ###
+    grid = display_utils.create_img_grid(
+        [
+            [brown_res, brown_dilated, brown_blurred],
+            [gray_res, gray_dilated, gray_blurred],
+        ]
+    )
+    # cv2.imshow("color grid", grid)
 
     combined = cv2.bitwise_or(brown_res, gray_res)
     # kernel = np.ones((3, 3), dtype=float) / 9
     # combined = cv2.filter2D(combined, -1, kernel)
-
     return combined
 
 
 if __name__ == "__main__":
-    img_path = Path("./target-imgs/mid-target.jpg")
+
+    img_path = Path("./target-imgs/upshot-target.jpg")
     img = cv2.imread(str(img_path))
     img = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
     target_img = img.copy()  # for drawing bounding box on
@@ -59,8 +74,8 @@ if __name__ == "__main__":
     # blurred = cv2.GaussianBlur(img, (5, 5), 0)
     blurred = cv2.medianBlur(img, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lower_brown = np.array([5, 0, 0])
-    upper_brown = np.array([20, 255, 255])
+    lower_brown = np.array([5, 0, 160])
+    upper_brown = np.array([20, 130, 255])
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(img, img, mask=brown_mask)
     # cv2.imshow("hsv filter brown", brown_mask)
@@ -71,15 +86,37 @@ if __name__ == "__main__":
     # blurred = cv2.GaussianBlur(img, (5, 5), 0)
     blurred = cv2.medianBlur(img, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lower_gray = np.array([0, 0, 0])
-    upper_gray = np.array([255, 20, 255])
+    lower_gray = np.array([0, 0, 150])
+    upper_gray = np.array([200, 25, 255])
     gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
     gray_res = cv2.bitwise_and(img, img, mask=gray_mask)
     # cv2.imshow("hsv filter gray", gray_mask)
     cv2.imshow("gray res", gray_res)
 
+    # white
+    blurred = cv2.medianBlur(img, 5)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    lower_white = np.array([100, 10, 180])
+    upper_white = np.array([150, 50, 225])
+    white_mask = cv2.inRange(hsv, lower_white, upper_white)
+    white_res = cv2.bitwise_and(img, img, mask=white_mask)
+    cv2.imshow("white res", white_res)
+
     aoi = cv2.bitwise_or(brown_res, gray_res)
-    cv2.imshow("aoi brown gray", aoi)
+    # aoi = cv2.bitwise_or(aoi, white_res)
+    cv2.imshow("aoi brown gray white", aoi)
+
+    new_img = aoi.copy()
+    new_img = cv2.erode(new_img, (5, 5))
+    new_img = cv2.GaussianBlur(new_img, (5, 5), 0)
+    canny = cv2.Canny(new_img, 500, 20)
+    cv2.imshow("canny", canny)
+
+    contours, hierarchy = cv2.findContours(
+        canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+    )
+    cleaned = utils.blacken_small_noise(canny, contours, 100)
+    cv2.imshow("cleaned", cleaned)
 
     # intersection = cv2.bitwise_and(aoi, green_res)
     # _, intersection = cv2.threshold(intersection, 1, 255, cv2.THRESH_BINARY)
