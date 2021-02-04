@@ -19,40 +19,60 @@ def apply_color_filter(img):
     blurred = cv2.medianBlur(img, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-    lower_brown = np.array([5, 0, 160])
+    lower_brown = np.array([5, 0, 60])
     upper_brown = np.array([20, 180, 255])
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(img, img, mask=brown_mask)
 
-    lower_gray = np.array([0, 0, 150])
-    upper_gray = np.array([200, 25, 255])
-    gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
-    gray_res = cv2.bitwise_and(img, img, mask=gray_mask)
+    # lower_gray = np.array([0, 0, 150])
+    # upper_gray = np.array([200, 25, 255])
+    # gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
+    # gray_res = cv2.bitwise_and(img, img, mask=gray_mask)
 
-    brown_dilated = cv2.dilate(brown_res, (17, 17))
-    gray_dilated = cv2.dilate(gray_res, (17, 17))
+    brown_cleaned = cv2.morphologyEx(brown_res, cv2.MORPH_OPEN, (5, 5), iterations=1)
 
-    brown_blurred = cv2.medianBlur(brown_dilated, 3)
-    gray_blurred = cv2.medianBlur(gray_dilated, 3)
+    brown_blurred = cv2.GaussianBlur(brown_cleaned, (3, 3), 0)
+    # gray_blurred = cv2.medianBlur(gray_dilated, 3)
 
     ### Temp Displaying ###
-    grid = display_utils.create_img_grid(
-        [
-            [brown_res, brown_dilated, brown_blurred],
-            [gray_res, gray_dilated, gray_blurred],
-        ]
-    )
+    # grid = display_utils.create_img_grid(
+    #     [
+    #         [brown_res, brown_dilated, brown_blurred],
+    #         [gray_res, gray_dilated, gray_blurred],
+    #     ]
+    # )
     # cv2.imshow("color grid", grid)
 
-    combined = cv2.bitwise_or(brown_res, gray_res)
+    # combined = cv2.bitwise_or(brown_res, gray_res)
     # kernel = np.ones((3, 3), dtype=float) / 9
     # combined = cv2.filter2D(combined, -1, kernel)
-    return combined
+    # return combined
+    return brown_blurred
+
+
+def unsharp_mask(img, blur_size, imgWeight, gaussianWeight):
+    # code from https://stackoverflow.com/questions/42872353/correcting-rough-edges/42872732
+    gaussian = cv2.GaussianBlur(img, blur_size, 0)
+    return cv2.addWeighted(img, imgWeight, gaussian, gaussianWeight, 0)
+
+
+def smoother_edges(
+    img,
+    first_blur_size,
+    second_blur_size=(5, 5),
+    imgWeight=1.5,
+    gaussianWeight=-0.5,
+):
+    # code from https://stackoverflow.com/questions/42872353/correcting-rough-edges/42872732
+    # blur the image before unsharp masking
+    img = cv2.GaussianBlur(img, first_blur_size, 0)
+    # perform unsharp masking
+    return unsharp_mask(img, second_blur_size, imgWeight, gaussianWeight)
 
 
 if __name__ == "__main__":
 
-    img_path = Path("./target-imgs/upshot-target.jpg")
+    img_path = Path("./target-imgs/right-upshot-target-notape.jpg")
     img = cv2.imread(str(img_path))
     img = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
     target_img = img.copy()  # for drawing bounding box on
@@ -68,18 +88,20 @@ if __name__ == "__main__":
     green_mask = cv2.inRange(hsv, lower_green, upper_green)
     green_res = cv2.bitwise_and(img, img, mask=green_mask)
     # cv2.imshow("hsv filter green", green_mask)
-    cv2.imshow("green res", green_res)
+    # cv2.imshow("green res", green_res)
 
     # brown
     # blurred = cv2.GaussianBlur(img, (5, 5), 0)
     blurred = cv2.medianBlur(img, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    lower_brown = np.array([5, 0, 160])
-    upper_brown = np.array([20, 130, 255])
+    lower_brown = np.array([5, 0, 60])
+    upper_brown = np.array([20, 180, 255])
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(img, img, mask=brown_mask)
     # cv2.imshow("hsv filter brown", brown_mask)
     cv2.imshow("brown res", brown_res)
+    brown_cleaned = cv2.morphologyEx(brown_res, cv2.MORPH_OPEN, (5, 5), iterations=5)
+    cv2.imshow("brown cleaned", brown_cleaned)
 
     # gray
     # reflect shape over top of contour of tape then find center of that
@@ -91,7 +113,7 @@ if __name__ == "__main__":
     gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
     gray_res = cv2.bitwise_and(img, img, mask=gray_mask)
     # cv2.imshow("hsv filter gray", gray_mask)
-    cv2.imshow("gray res", gray_res)
+    # cv2.imshow("gray res", gray_res)
 
     # white
     blurred = cv2.medianBlur(img, 5)
@@ -100,23 +122,23 @@ if __name__ == "__main__":
     upper_white = np.array([150, 50, 225])
     white_mask = cv2.inRange(hsv, lower_white, upper_white)
     white_res = cv2.bitwise_and(img, img, mask=white_mask)
-    cv2.imshow("white res", white_res)
+    # cv2.imshow("white res", white_res)
 
     aoi = cv2.bitwise_or(brown_res, gray_res)
     # aoi = cv2.bitwise_or(aoi, white_res)
-    cv2.imshow("aoi brown gray white", aoi)
+    # cv2.imshow("aoi brown gray white", aoi)
 
     new_img = aoi.copy()
     new_img = cv2.erode(new_img, (5, 5))
     new_img = cv2.GaussianBlur(new_img, (5, 5), 0)
-    canny = cv2.Canny(new_img, 500, 20)
-    cv2.imshow("canny", canny)
+    # canny = cv2.Canny(new_img, 500, 20)
+    # cv2.imshow("canny", canny)
 
-    contours, hierarchy = cv2.findContours(
-        canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-    )
-    cleaned = utils.blacken_small_noise(canny, contours, 100)
-    cv2.imshow("cleaned", cleaned)
+    # contours, hierarchy = cv2.findContours(
+    #     canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+    # )
+    # cleaned = utils.blacken_small_noise(canny, contours, 100)
+    # cv2.imshow("cleaned", cleaned)
 
     # intersection = cv2.bitwise_and(aoi, green_res)
     # _, intersection = cv2.threshold(intersection, 1, 255, cv2.THRESH_BINARY)

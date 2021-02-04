@@ -16,8 +16,12 @@ def apply_ops(frame):
     # cv2.imshow("gray before", gray)
 
     # blurred = cv2.bilateralFilter(gray, 25, 15, 75)
-    blurred = cv2.GaussianBlur(gray, (13, 13), 0)
-    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    # _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+    thresh = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 201, 0
+    )
+    # thresh = cv2.bitwise_or(thresh_norm, thresh_adapt)
     # cv2.imshow("blurred", blurred)
     # cv2.imshow("thresh", thresh)
 
@@ -52,10 +56,12 @@ def apply_ops(frame):
     # utils.draw_bboxes(frame, iou_bboxes, (255, 255, 255), 2)
     # utils.draw_circles(frame, iou_bboxes_centeriods, color=(255, 255, 255))
 
-    grid = display_utils.create_img_grid(
-        [[frame, blurred, thresh], [canny, contour_img, hexagons_img]]
-    )
-    return grid
+    # grid = display_utils.create_img_grid(
+    #     [[frame, blurred, thresh], [canny, contour_img, hexagons_img]]
+    # )
+    # return grid
+    frame_list = [frame, thresh, canny, contour_img, hexagons_img]
+    return frame_list
 
 
 if __name__ == "__main__":

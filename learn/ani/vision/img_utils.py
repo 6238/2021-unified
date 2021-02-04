@@ -129,6 +129,12 @@ class GeneralUtils:
 
         return img
 
+    def equalize_hist_colored(self, img):
+        img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+        img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
+        img = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
+        return img
+
 
 class ShapeDetector:
     def detect_shape(self, contour, num_sides):
@@ -161,5 +167,20 @@ class DisplayUtils:
                     img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
                 new_row.append(img)
             grid.append(np.hstack(new_row))
+
+        return np.vstack(grid)
+
+    def create_img_grid_list(self, img_list, width, height):
+        assert width * height == len(img_list)
+        grid = []
+        new_row = []
+        for idx, img in enumerate(img_list):
+            if img.shape[-1] != 3:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            new_row.append(img)
+
+            if (idx + 1) % width == 0 and idx != 0:
+                grid.append(np.hstack(new_row))
+                new_row = []
 
         return np.vstack(grid)

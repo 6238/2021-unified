@@ -8,8 +8,12 @@ import shape_detection_img, color_filtering_img
 
 # accesible at drive folder: https://drive.google.com/drive/folders/11khSnQNsxnt0JStAec8j-widmBLOzPsO?usp=sharing
 # video name (can use others too): vision-video-trees-lowres-0.mp4
+
+# video_path = Path(
+#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-notape-lowres-0.mp4"
+# )
 video_path = Path(
-    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-lowres-0.mp4"
+    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
 )
 cap = cv2.VideoCapture(str(video_path))
 if not cap.isOpened():
@@ -35,8 +39,17 @@ while True:
         frame,
         (frame.shape[1] // 2, frame.shape[0] // 2),
     )
-    filtered = color_filtering_img.apply_color_filter(frame)
-    grid = shape_detection_img.apply_ops(filtered)
+    original = frame.copy()  # saving copy before edits
+
+    equalized = cv2.normalize(frame, frame, 0, 255, cv2.NORM_MINMAX)
+    filtered = color_filtering_img.apply_color_filter(equalized)
+    smoothed = color_filtering_img.smoother_edges(
+        filtered, (3 * 2 + 1, 3 * 2 + 1), (1, 1)
+    )
+
+    frame_list = shape_detection_img.apply_ops(smoothed)
+    grid = [original] + frame_list
+    grid = display_utils.create_img_grid_list(grid, 3, 2)
     cv2.imshow("grid", grid)
 
     # Display the new frame
