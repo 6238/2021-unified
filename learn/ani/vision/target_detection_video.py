@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 
 from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
-import target_detection_img, color_filtering_img
+import target_detection_img
+import color_filtering_img
 
 # TODO ideas
 # find contours after each mask, then blacken everything under a certain area.
@@ -13,7 +14,7 @@ import target_detection_img, color_filtering_img
 # use two seperate deques, one for long term, one for short term that uses velocity prediction
 
 
-# accesible at drive folder: https://drive.google.com/drive/folders/11khSnQNsxnt0JStAec8j-widmBLOzPsO?usp=sharing
+# videos in folder: https://drive.google.com/drive/folders/11khSnQNsxnt0JStAec8j-widmBLOzPsO
 # video name (can use others too): vision-video-trees-white-notape-lowres-0.mp4
 
 utils = GeneralUtils()
@@ -22,17 +23,14 @@ display_utils = DisplayUtils()
 
 # keep last 150 frames or last 5 seconds at 30fps
 centroids_deque = deque(maxlen=150)
-no_target_frames = 0
+NO_TARGET_FRAMES = 0
 NO_TARGET_THRESH = 15
 
-
-# video_path = Path(
-#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-notape-lowres-0.mp4"
-# )
 video_path = Path(
-    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
+    "videos/vision-video-trees-white-notape-lowres-0.mp4"
 )
-cap = cv2.VideoCapture(str(video_path))
+# cap = cv2.VideoCapture(str(video_path))
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
@@ -67,10 +65,10 @@ while True:
 
     if len(centroid) != 0:
         centroids_deque.append(centroid)
-        no_target_frames = 0
+        NO_TARGET_FRAMES = 0
     else:
-        no_target_frames += 1
-        if no_target_frames < NO_TARGET_THRESH:
+        NO_TARGET_FRAMES += 1
+        if NO_TARGET_FRAMES < NO_TARGET_THRESH and len(centroids_deque) != 0:
             centroid = centroids_deque[-1]
 
     # displaying image grid
