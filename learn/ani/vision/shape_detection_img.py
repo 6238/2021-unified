@@ -12,6 +12,7 @@ display_utils = DisplayUtils()
 
 
 def apply_ops(frame):
+    """DEPRECATED, used for testing appying various operations to the frame"""
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # cv2.imshow("gray before", gray)
 
@@ -19,7 +20,7 @@ def apply_ops(frame):
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     # _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
     thresh = cv2.adaptiveThreshold(
-        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 201, 0
+        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 201, 0
     )
     # thresh = cv2.bitwise_or(thresh_norm, thresh_adapt)
     # cv2.imshow("blurred", blurred)

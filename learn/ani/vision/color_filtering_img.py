@@ -12,10 +12,6 @@ display_utils = DisplayUtils()
 
 def apply_color_filter(img):
 
-    # TODO ideas
-    # find contours after each mask, then blacken everything under a certain area.
-    # crop into brown target after using contours to find a rectangle that is large on brown mask
-
     blurred = cv2.medianBlur(img, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
@@ -24,15 +20,9 @@ def apply_color_filter(img):
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(img, img, mask=brown_mask)
 
-    # lower_gray = np.array([0, 0, 150])
-    # upper_gray = np.array([200, 25, 255])
-    # gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
-    # gray_res = cv2.bitwise_and(img, img, mask=gray_mask)
-
     brown_cleaned = cv2.morphologyEx(brown_res, cv2.MORPH_OPEN, (5, 5), iterations=1)
 
     brown_blurred = cv2.GaussianBlur(brown_cleaned, (3, 3), 0)
-    # gray_blurred = cv2.medianBlur(gray_dilated, 3)
 
     ### Temp Displaying ###
     # grid = display_utils.create_img_grid(
@@ -43,31 +33,7 @@ def apply_color_filter(img):
     # )
     # cv2.imshow("color grid", grid)
 
-    # combined = cv2.bitwise_or(brown_res, gray_res)
-    # kernel = np.ones((3, 3), dtype=float) / 9
-    # combined = cv2.filter2D(combined, -1, kernel)
-    # return combined
     return brown_blurred
-
-
-def unsharp_mask(img, blur_size, imgWeight, gaussianWeight):
-    # code from https://stackoverflow.com/questions/42872353/correcting-rough-edges/42872732
-    gaussian = cv2.GaussianBlur(img, blur_size, 0)
-    return cv2.addWeighted(img, imgWeight, gaussian, gaussianWeight, 0)
-
-
-def smoother_edges(
-    img,
-    first_blur_size,
-    second_blur_size=(5, 5),
-    imgWeight=1.5,
-    gaussianWeight=-0.5,
-):
-    # code from https://stackoverflow.com/questions/42872353/correcting-rough-edges/42872732
-    # blur the image before unsharp masking
-    img = cv2.GaussianBlur(img, first_blur_size, 0)
-    # perform unsharp masking
-    return unsharp_mask(img, second_blur_size, imgWeight, gaussianWeight)
 
 
 if __name__ == "__main__":

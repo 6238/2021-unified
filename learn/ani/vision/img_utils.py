@@ -4,31 +4,6 @@ import numpy as np
 
 
 class GeneralUtils:
-    def display_img(self, img, window_name="img", wait_key=-1):
-        cv2.imshow(window_name, img)
-        cv2.waitKey(wait_key)
-
-    def detect_draw_contours(self, src, dest=None):
-        """Draws contours from given src on given dst (drawn on src if no dst specified) and returns said contours."""
-        contours = cv2.findContours(src, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for contour in contours:
-            if dest is not None:
-                cv2.drawContours(dest, [contour], -1, (255, 0, 0), 3)
-            else:
-                cv2.drawContours(src, [contour], -1, (255, 0, 0), 3)
-
-        return contours
-
-    def draw_bboxes(self, dest, rects, color=(0, 255, 0), thickness=2):
-        for rect in rects:
-            cv2.rectangle(
-                dest, (rect[0], rect[1]), (rect[2], rect[3]), color, thickness
-            )
-
-    def draw_circles(self, dest, circles, radius=5, color=(0, 255, 0), thickness=-1):
-        for circle in circles:
-            cv2.circle(dest, (circle[0], circle[1]), radius, color, thickness)
-
     def get_contour_centers(self, contours):
         centeriods = []
         for contour in contours:
@@ -99,6 +74,10 @@ class GeneralUtils:
         new_rects, weights = cv2.groupRectangles(rects, 1)
         return new_rects, weights
 
+    def get_largest_contour(self, contours):
+        areas = [cv2.contourArea(contour) for contour in contours]
+        return contours[np.argmax(areas)]
+
     def filter_contours_area(self, contours, area_thresh, keep_big=True):
         filtered = []
         for contour in contours:
@@ -135,6 +114,25 @@ class GeneralUtils:
         img = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
         return img
 
+    def unsharp_mask(self, img, blur_size, img_weight, gaussian_weight):
+        # code from https://stackoverflow.com/questions/42872353/correcting-rough-edges/42872732
+        gaussian = cv2.GaussianBlur(img, blur_size, 0)
+        return cv2.addWeighted(img, img_weight, gaussian, gaussian_weight, 0)
+
+    def smoother_edges(
+        self,
+        img,
+        first_blur_size,
+        second_blur_size=(5, 5),
+        img_weight=1.5,
+        gaussian_weight=-0.5,
+    ):
+        # code from https://stackoverflow.com/questions/42872353/correcting-rough-edges/42872732
+        # blur the image before unsharp masking
+        img = cv2.GaussianBlur(img, first_blur_size, 0)
+        # perform unsharp masking
+        return self.unsharp_mask(img, second_blur_size, img_weight, gaussian_weight)
+
 
 class ShapeDetector:
     def detect_shape(self, contour, num_sides):
@@ -158,6 +156,31 @@ class ShapeDetector:
 
 
 class DisplayUtils:
+    def display_img(self, img, window_name="img", wait_key=-1):
+        cv2.imshow(window_name, img)
+        cv2.waitKey(wait_key)
+
+    def detect_draw_contours(self, src, dest=None):
+        """Draws contours from given src on given dst (drawn on src if no dst specified) and returns said contours."""
+        contours = cv2.findContours(src, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for contour in contours:
+            if dest is not None:
+                cv2.drawContours(dest, [contour], -1, (255, 0, 0), 3)
+            else:
+                cv2.drawContours(src, [contour], -1, (255, 0, 0), 3)
+
+        return contours
+
+    def draw_bboxes(self, dest, rects, color=(0, 255, 0), thickness=2):
+        for rect in rects:
+            cv2.rectangle(
+                dest, (rect[0], rect[1]), (rect[2], rect[3]), color, thickness
+            )
+
+    def draw_circles(self, dest, circles, radius=5, color=(0, 255, 0), thickness=-1):
+        for circle in circles:
+            cv2.circle(dest, (circle[0], circle[1]), radius, color, thickness)
+
     def create_img_grid(self, img_matrix):
         grid = []
         for row in img_matrix:
