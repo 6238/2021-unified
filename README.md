@@ -35,11 +35,6 @@ https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/frc-game-tools.html
 Necessary to program the robot radios.
 https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-3/radio-programming.html
 
-### REV Hardware Client
-#### (Windows only, optional)
-Used to configure the Spark MAX's and other REV hardware, this can also be achieved through code.
-https://docs.revrobotics.com/sparkmax/rev-hardware-client/getting-started-with-the-rev-hardware-client
-
 ### 3rd Party Libraries
 #### (macOS/Windows/Linux, required)
 - Analog Devices ADIS16470 IMU
@@ -61,10 +56,10 @@ https://docs.revrobotics.com/sparkmax/rev-hardware-client/getting-started-with-t
 Offline installers are preferred (allows you to install once for all the robot projects you create)  
 https://docs.wpilib.org/en/stable/docs/software/vscode-overview/3rd-party-libraries.html#libraries
 
-### Spark MAX Client
+### REV Hardware Client
 #### (Windows only, optional)
-Necessary to configure Spark MAX's.
-https://www.revrobotics.com/sparkmax-software/#spark-max-client-application
+Used to configure the Spark MAX's and other REV hardware, this can also be achieved through code.
+https://docs.revrobotics.com/sparkmax/rev-hardware-client/getting-started-with-the-rev-hardware-client
 
 ## Sample Repositories
 List of repositories with example code:
