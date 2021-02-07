@@ -70,7 +70,6 @@ __pycache__/
 # ignore useless jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-
 ### Linux ###
 *~
 
