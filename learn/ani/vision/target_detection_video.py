@@ -1,16 +1,18 @@
 from pathlib import Path
 from collections import deque
+import itertools
 
 import cv2
 import numpy as np
 
 from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 import target_detection_img, color_filtering_img
+from center_prediction import CenterPredModel
 
 # TODO ideas
 # find contours after each mask, then blacken everything under a certain area.
 # crop into brown target after using contours to find a rectangle that is large on brown mask
-# use two seperate deques, one for long term, one for short term that uses velocity prediction
+# fix flatlining issue where predictions using poly fit don't update over time
 
 
 # accesible at drive folder: https://drive.google.com/drive/folders/11khSnQNsxnt0JStAec8j-widmBLOzPsO?usp=sharing
@@ -22,8 +24,16 @@ display_utils = DisplayUtils()
 
 # keep last 150 frames or last 5 seconds at 30fps
 centroids_deque = deque(maxlen=150)
-no_target_frames = 0
 NO_TARGET_THRESH = 15
+frames_since_target = 0
+
+FRAMES_FOR_TRAIN = 15
+MODEL_DEGREE = 4
+center_pred_model = CenterPredModel(degree=MODEL_DEGREE)
+
+frame_count = 0
+truth_centroids = []
+pred_centroids = []
 
 
 # video_path = Path(
@@ -41,6 +51,7 @@ if not cap.isOpened():
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
+    frame_count += 1
 
     # if frame is not correctly read
     if not ret:
@@ -67,19 +78,38 @@ while True:
 
     if len(centroid) != 0:
         centroids_deque.append(centroid)
-        no_target_frames = 0
+        truth_centroids.append(np.array([frame_count, centroid[0], centroid[1]]))
+        frames_since_target = 0
     else:
-        no_target_frames += 1
-        if no_target_frames < NO_TARGET_THRESH:
-            centroid = centroids_deque[-1]
+        frames_since_target += 1
+        if frames_since_target < NO_TARGET_THRESH and len(centroids_deque) != 0:
+            # train on last n frames
+            # max is to make sure we don't go out of bounds when len(centroids_deque) < FRAMES_FOR_TRAIN
+            frames = list(
+                itertools.islice(
+                    centroids_deque,
+                    max(0, len(centroids_deque) - FRAMES_FOR_TRAIN),
+                    len(centroids_deque),
+                )
+            )
+            center_pred_model.fit_frames(frames)
+
+            current_time = np.array([FRAMES_FOR_TRAIN - 1])
+            centroid = center_pred_model.predict_single_scalar(current_time, dtype=int)
+            pred_centroids.append(np.array([frame_count, centroid[0], centroid[1]]))
+            # centroid = centroids_deque[-1]
+            print("pred: ", end="")
+
+    print(frame_count, centroid)
 
     # displaying image grid
     if len(centroid) != 0:
         display_utils.draw_circles(original, [centroid])
 
-    grid = [original] + frame_list
-    grid = display_utils.create_img_grid_list(grid, 3, 2)
-    cv2.imshow("grid", grid)
+    # grid = [original] + frame_list
+    # grid = display_utils.create_img_grid_list(grid, 3, 2)
+    # cv2.imshow("grid", grid)
+    cv2.imshow("frame", original)
 
     if cv2.waitKey(5) & 0xFF == 27:
         break
@@ -88,3 +118,15 @@ while True:
 # Eelease the capture at end
 cap.release()
 cv2.destroyAllWindows()
+
+truth_centroids = np.array(truth_centroids)
+np.save(
+    f"./centroid-pred-data/truth-centroid-history-deg{MODEL_DEGREE}-frames{FRAMES_FOR_TRAIN}",
+    truth_centroids,
+)
+
+pred_centroids = np.array(pred_centroids)
+np.save(
+    f"./centroid-pred-data/pred-centroid-history-deg{MODEL_DEGREE}-frames{FRAMES_FOR_TRAIN}",
+    pred_centroids,
+)

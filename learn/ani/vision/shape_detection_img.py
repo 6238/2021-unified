@@ -105,6 +105,7 @@ if __name__ == "__main__":
     contours, hierarchy = cv2.findContours(
         canny, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
     )
+
     cv2.drawContours(target_img, contours, -1, (0, 0, 255), 3)
     # cv2.imshow("contours before", target_img)
     # cv2.waitKey(1)
@@ -134,36 +135,36 @@ if __name__ == "__main__":
     # draw bboxes of all contours in green
     bboxes = utils.generate_bboxes(contours)
     print("all bboxes:", bboxes)
-    utils.draw_bboxes(target_img, bboxes, (0, 255, 0), 2)
+    display_utils.draw_bboxes(target_img, bboxes, (0, 255, 0), 2)
 
     # draw common bboxes of contours in blue
     # the groupRectangles doesn't work well, my function works better
     common_bboxes, weights = cv2.groupRectangles(bboxes, 1, 0.2)
     print("common bboxes:", common_bboxes)
-    utils.draw_bboxes(target_img, common_bboxes, (255, 0, 0), 2)
+    display_utils.draw_bboxes(target_img, common_bboxes, (255, 0, 0), 2)
 
     # draw iou common bboxes of contours in white
     iou_bboxes = utils.get_distinct_bboxes(bboxes, 0.8)
     print("iou bboxes:", common_bboxes)
-    utils.draw_bboxes(target_img, iou_bboxes, (255, 255, 255), 2)
+    display_utils.draw_bboxes(target_img, iou_bboxes, (255, 255, 255), 2)
 
     ### drawing centeriods ###
 
     # draw centeriods of contours in red
     contour_centeriods = utils.get_contour_centers(contours)
-    utils.draw_circles(target_img, contour_centeriods, color=(0, 0, 255))
+    display_utils.draw_circles(target_img, contour_centeriods, color=(0, 0, 255))
 
     # draw centeriods of all bboxes in green
     bboxes_centeriods = utils.get_bbox_centers(bboxes)
-    utils.draw_circles(target_img, bboxes_centeriods, color=(0, 255, 0))
+    display_utils.draw_circles(target_img, bboxes_centeriods, color=(0, 255, 0))
 
     # draw centeriods of common bboxes in blue
     common_bboxes_centeriods = utils.get_bbox_centers(common_bboxes)
-    utils.draw_circles(target_img, common_bboxes_centeriods, color=(255, 0, 0))
+    display_utils.draw_circles(target_img, common_bboxes_centeriods, color=(255, 0, 0))
 
     # draw centeriods of iou common bboxes in white
     iou_bboxes_centeriods = utils.get_bbox_centers(iou_bboxes)
-    utils.draw_circles(target_img, iou_bboxes_centeriods, color=(255, 255, 255))
+    display_utils.draw_circles(target_img, iou_bboxes_centeriods, color=(255, 255, 255))
 
     [
         print(f"is contour {i} a hex: {shape_detector.detect_shape(contour, 6)}")

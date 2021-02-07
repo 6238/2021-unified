@@ -140,6 +140,7 @@ class ShapeDetector:
         # must be closed contour
         perimeter = cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, 0.05 * perimeter, True)
+        # print(approx)
 
         if len(approx) == num_sides and cv2.isContourConvex(approx):
             return True
