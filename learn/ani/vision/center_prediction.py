@@ -10,7 +10,6 @@ class CenterPredModel:
         if degree is None:
             self.degree = 1
         else:
-            print("deg in init", degree)
             self.degree = degree
 
         if xs is None and ys is None:
@@ -83,32 +82,38 @@ class CenterPredModel:
 
 if __name__ == "__main__":
 
-    deg1 = 4
-    frames1 = 5
+    deg1 = 1
+    frames1 = 3
+    constant_thresh1 = 6
     truth_path = Path(
-        f"centroid-pred-data/truth-centroid-history-deg{deg1}-frames{frames1}.npy"
+        f"centroid-pred-data/truth-centroid-history-deg{deg1}-frames{frames1}-constantthresh{constant_thresh1}.npy"
     )
     truth = np.load(truth_path)
     pred_path = Path(
-        f"centroid-pred-data/pred-centroid-history-deg{deg1}-frames{frames1}.npy"
+        f"centroid-pred-data/pred-centroid-history-deg{deg1}-frames{frames1}-constantthresh{constant_thresh1}.npy"
     )
     pred = np.load(pred_path)
     fig1 = CenterPredModel.graph_truth_pred_history(truth, pred)
-    fig1.suptitle(f"degree: {deg1}, frames: {frames1}")
+    fig1.suptitle(
+        f"degree: {deg1}, frames: {frames1}, constant_thresh: {constant_thresh1}"
+    )
     fig1.show()
 
-    deg2 = 4
-    frames2 = 15
+    deg2 = 1
+    frames2 = 3
+    constant_thresh2 = 3
     truth_path = Path(
-        f"centroid-pred-data/truth-centroid-history-deg{deg2}-frames{frames2}.npy"
+        f"centroid-pred-data/truth-centroid-history-deg{deg2}-frames{frames2}-constantthresh{constant_thresh2}.npy"
     )
     truth = np.load(truth_path)
     pred_path = Path(
-        f"centroid-pred-data/pred-centroid-history-deg{deg2}-frames{frames2}.npy"
+        f"centroid-pred-data/pred-centroid-history-deg{deg2}-frames{frames2}-constantthresh{constant_thresh2}.npy"
     )
     pred = np.load(pred_path)
     fig2 = CenterPredModel.graph_truth_pred_history(truth, pred)
-    fig2.suptitle(f"degree: {deg2}, frames: {frames2}")
+    fig2.suptitle(
+        f"degree: {deg2}, frames: {frames2}, constant_thresh: {constant_thresh2}"
+    )
     fig2.show()
 
     plt.show()

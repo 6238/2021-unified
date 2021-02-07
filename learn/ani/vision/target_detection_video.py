@@ -12,7 +12,7 @@ from center_prediction import CenterPredModel
 # TODO ideas
 # find contours after each mask, then blacken everything under a certain area.
 # crop into brown target after using contours to find a rectangle that is large on brown mask
-# fix flatlining issue where predictions using poly fit don't update over time
+# add threshold that reverts to previous known centriod if over it rather than predicting
 
 
 # accesible at drive folder: https://drive.google.com/drive/folders/11khSnQNsxnt0JStAec8j-widmBLOzPsO?usp=sharing
@@ -27,8 +27,10 @@ centroids_deque = deque(maxlen=150)
 NO_TARGET_THRESH = 15
 frames_since_target = 0
 
-FRAMES_FOR_TRAIN = 15
-MODEL_DEGREE = 4
+CONSTANT_CENTROID_THRESH = 6
+
+FRAMES_FOR_TRAIN = 3
+MODEL_DEGREE = 1
 center_pred_model = CenterPredModel(degree=MODEL_DEGREE)
 
 frame_count = 0
@@ -77,7 +79,7 @@ while True:
     centroid = target_detection_img.get_target_centroid(smoothed)
 
     if len(centroid) != 0:
-        centroids_deque.append(centroid)
+        centroids_deque.append(np.array([frame_count, centroid[0], centroid[1]]))
         truth_centroids.append(np.array([frame_count, centroid[0], centroid[1]]))
         frames_since_target = 0
     else:
@@ -94,10 +96,17 @@ while True:
             )
             center_pred_model.fit_frames(frames)
 
-            current_time = np.array([FRAMES_FOR_TRAIN - 1])
+            current_time = np.array([frame_count])
             centroid = center_pred_model.predict_single_scalar(current_time, dtype=int)
             pred_centroids.append(np.array([frame_count, centroid[0], centroid[1]]))
-            # centroid = centroids_deque[-1]
+
+            if frames_since_target > CONSTANT_CENTROID_THRESH:
+                last_truth = centroids_deque[-1]
+                centroid = [
+                    (centroid[0] + last_truth[0]) // 2,
+                    (centroid[1] + last_truth[1]) // 2,
+                ]
+
             print("pred: ", end="")
 
     print(frame_count, centroid)
@@ -121,12 +130,12 @@ cv2.destroyAllWindows()
 
 truth_centroids = np.array(truth_centroids)
 np.save(
-    f"./centroid-pred-data/truth-centroid-history-deg{MODEL_DEGREE}-frames{FRAMES_FOR_TRAIN}",
+    f"./centroid-pred-data/truth-centroid-history-deg{MODEL_DEGREE}-frames{FRAMES_FOR_TRAIN}-constantthresh{CONSTANT_CENTROID_THRESH}",
     truth_centroids,
 )
 
 pred_centroids = np.array(pred_centroids)
 np.save(
-    f"./centroid-pred-data/pred-centroid-history-deg{MODEL_DEGREE}-frames{FRAMES_FOR_TRAIN}",
+    f"./centroid-pred-data/pred-centroid-history-deg{MODEL_DEGREE}-frames{FRAMES_FOR_TRAIN}-constantthresh{CONSTANT_CENTROID_THRESH}",
     pred_centroids,
 )
