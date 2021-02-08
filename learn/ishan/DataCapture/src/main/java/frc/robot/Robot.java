@@ -95,7 +95,7 @@ public class Robot extends TimedRobot {
 
         // schedule the autonomous command (example)
         if (captureCommand != null) {
-            captureCommand.schedule();
+            // captureCommand.schedule();
         }
     }
 

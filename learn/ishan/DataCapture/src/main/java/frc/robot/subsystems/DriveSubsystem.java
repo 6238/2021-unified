@@ -67,7 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
 
         // TODO: figure out IMU axis?
         imu = new ADIS16470_IMU();
-        imu.setYawAxis(IMUAxis.kZ);
+        imu.setYawAxis(IMUAxis.kX);
         imu.calibrate();
     }
 
