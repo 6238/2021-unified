@@ -13,6 +13,8 @@ from center_prediction import CenterPredModel
 # find contours after each mask, then blacken everything under a certain area.
 # crop into brown target after using contours to find a rectangle that is large on brown mask
 # add threshold that reverts to previous known centriod if over it rather than predicting
+# calulate depth
+# try expanding roi on point_tracking then running goodFeaturesToTrack on expaned roi
 
 
 # accesible at drive folder: https://drive.google.com/drive/folders/11khSnQNsxnt0JStAec8j-widmBLOzPsO?usp=sharing
@@ -41,14 +43,16 @@ pred_centroids = []
 # video_path = Path(
 #     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-notape-lowres-0.mp4"
 # )
+# video_path = Path(
+#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
+# )
 video_path = Path(
-    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
+    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-horizontal-robot-driving-720p-0.mp4"
 )
 cap = cv2.VideoCapture(str(video_path))
 if not cap.isOpened():
-    print("Cannot open camera")
+    print("Cannot open video/camera")
     exit()
-
 
 while True:
     # Capture frame-by-frame
@@ -59,6 +63,8 @@ while True:
     if not ret:
         print("End of video")
         break
+
+    fps_timer0 = cv2.getTickCount()  # for fps tracking
 
     # halve frame size
     frame = cv2.resize(
@@ -73,6 +79,7 @@ while True:
     filtered = color_filtering_img.apply_color_filter(equalized)
     # smooth to remove jagged edges
     smoothed = utils.smoother_edges(filtered, (7, 7), (1, 1))
+
     frame_list = target_detection_img.draw_targets(smoothed)
 
     # acutal data
@@ -109,19 +116,34 @@ while True:
 
             print("pred: ", end="")
 
-    print(frame_count, centroid)
+    # print(frame_count, centroid)
 
     # displaying image grid
     if len(centroid) != 0:
         display_utils.draw_circles(original, [centroid])
 
-    # grid = [original] + frame_list
-    # grid = display_utils.create_img_grid_list(grid, 3, 2)
-    # cv2.imshow("grid", grid)
+    grid = [original] + frame_list
+    grid = display_utils.create_img_grid_list(grid, 3, 2)
+
+    fps = cv2.getTickFrequency() / (cv2.getTickCount() - fps_timer0)
+    cv2.putText(
+        original,
+        "FPS: " + str(int(fps)),
+        (0, 50),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.75,
+        (50, 170, 50),
+        2,
+    )
+
+    cv2.imshow("grid", grid)
     cv2.imshow("frame", original)
 
     if cv2.waitKey(5) & 0xFF == 27:
         break
+
+    if cv2.waitKey(1) == ord(" "):
+        cv2.waitKey(-1)
 
 
 # Eelease the capture at end

@@ -140,7 +140,6 @@ class ShapeDetector:
         # must be closed contour
         perimeter = cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, 0.05 * perimeter, True)
-        # print(approx)
 
         if len(approx) == num_sides and cv2.isContourConvex(approx):
             return True
@@ -179,8 +178,14 @@ class DisplayUtils:
             )
 
     def draw_circles(self, dest, circles, radius=5, color=(0, 255, 0), thickness=-1):
-        for circle in circles:
-            cv2.circle(dest, (circle[0], circle[1]), radius, color, thickness)
+        if isinstance(circles, list) or (
+            isinstance(circles, np.ndarray) and len(circles.shape) == 2
+        ):
+            for circle in circles:
+                cv2.circle(dest, (circle[0], circle[1]), radius, color, thickness)
+        else:
+            for circle in circles:
+                cv2.circle(dest, (circle[0][0], circle[0][1]), radius, color, thickness)
 
     def create_img_grid(self, img_matrix):
         grid = []
