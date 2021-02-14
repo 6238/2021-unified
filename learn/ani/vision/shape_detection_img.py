@@ -73,11 +73,11 @@ if __name__ == "__main__":
     img = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
     target_img = img.copy()  # for drawing bounding box on
 
-    cv2.imshow("original", img)
+    # cv2.imshow("original", img)
     # cv2.waitKey(1)
 
     img = apply_color_filter(img)
-    cv2.imshow("filtered", img)
+    # cv2.imshow("filtered", img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (25, 25), 0)
     _, thresh = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         is_convex = cv2.isContourConvex(approx)
         cv2.drawContours(temp_img, approx, -1, (0, 255, 255), 12)
 
-        cv2.imshow(f"contour {i}, sides {len(approx)}, convex {is_convex}", temp_img)
+        # cv2.imshow(f"contour {i}, sides {len(approx)}, convex {is_convex}", temp_img)
         # cv2.waitKey(1)
 
     ### drawing bboxes ###
@@ -170,5 +170,5 @@ if __name__ == "__main__":
         for i, contour in enumerate(contours)
     ]
 
-    cv2.imshow("target", target_img)
+    # cv2.imshow("target", target_img)
     cv2.waitKey(-1)

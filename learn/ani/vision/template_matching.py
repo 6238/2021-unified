@@ -24,5 +24,5 @@ matches = bf.match(des1, des2)
 matches = sorted(matches, key=lambda x: x.distance)
 
 matches_display = cv2.drawMatches(template_img, kp1, img, kp2, matches[:10], None)
-cv2.imshow("matches", matches_display)
+# cv2.imshow("matches", matches_display)
 cv2.waitKey(-1)

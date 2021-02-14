@@ -43,7 +43,7 @@ if __name__ == "__main__":
     img = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
     target_img = img.copy()  # for drawing bounding box on
 
-    cv2.imshow("original", img)
+    # cv2.imshow("original", img)
     # cv2.waitKey(1)
 
     # hue, sat, value
@@ -65,9 +65,9 @@ if __name__ == "__main__":
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(img, img, mask=brown_mask)
     # cv2.imshow("hsv filter brown", brown_mask)
-    cv2.imshow("brown res", brown_res)
+    # cv2.imshow("brown res", brown_res)
     brown_cleaned = cv2.morphologyEx(brown_res, cv2.MORPH_OPEN, (5, 5), iterations=5)
-    cv2.imshow("brown cleaned", brown_cleaned)
+    # cv2.imshow("brown cleaned", brown_cleaned)
 
     # gray
     # reflect shape over top of contour of tape then find center of that
