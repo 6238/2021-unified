@@ -1,26 +1,17 @@
-import sys
-import time
 from networktables import NetworkTables
+from random import random
+import time
 
-# To see messages from networktables, you must setup logging
-import logging
+# As a client to connect to a robot
+NetworkTables.initialize(server='roborio-6238-frc.local')
 
-logging.basicConfig(level=logging.DEBUG)
+sd = NetworkTables.getTable('SmartDashboard')
 
-if len(sys.argv) != 2:
-    print("Error: specify an IP to connect to!")
-    exit(0)
-
-ip = sys.argv[1]
-
-NetworkTables.initialize(server=ip)
-
-sd = NetworkTables.getTable("SmartDashboard")
-
-i = 0
 while True:
-    print("robotTime:", sd.getNumber("robotTime", -1))
+    x = random() * 1280 - 640
+    y = random() * 720 - 360
 
-    sd.putNumber("dsTime", i)
+    sd.putNumber('x', x)
+    sd.putNumber('y', y)
+
     time.sleep(1)
-    i += 1
