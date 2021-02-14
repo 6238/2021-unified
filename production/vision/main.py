@@ -5,23 +5,11 @@ import numpy as np
 
 from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 from depth_prediction import DepthPredModel
-import target_detection_img, color_filtering_img
 
-pixel_to_dist_path = Path(
-    r"E:\code\projects\frc-vision\datasets\target-dataset\vision-videos\distance-measuring\target_points.json"
-)
-meta_path = Path(
-    r"E:\code\projects\frc-vision\datasets\target-dataset\vision-videos\distance-measuring\meta.json"
-)
-# video_path = Path(
-#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-horizontal-robot-driving-720p-0.mp4"
-# )
-# video_path = Path(
-#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-vertical-robot-driving-1080p-0.mp4"
-# )
-video_path = Path(
-    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
-)
+# zero for completely silent, 1 for just console logs, 2 for displaying frames
+VERBOSE_LEVEL = 2
+pixel_to_dist_path = Path().cwd() / "target_points.json"
+meta_path = Path().cwd() / "meta.json"
 
 
 utils = GeneralUtils()
@@ -41,18 +29,49 @@ lk_params = dict(
 
 
 def get_hexagon_points(frame):
-    # equalize color and brightness, 2000+ fps
-    equalized = cv2.normalize(frame, None, 0, 255, cv2.NORM_MINMAX)
-    # filter by color, ~60fps
-    filtered = color_filtering_img.apply_color_filter(equalized)
-    # smooth to remove jagged edges, 200+ fps
+    cv2.normalize(frame, frame, 0, 255, cv2.NORM_MINMAX)
+
+    blurred = cv2.medianBlur(frame, 5)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+
+    lower_brown = np.array([5, 0, 60])
+    upper_brown = np.array([20, 180, 255])
+    brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
+    brown_res = cv2.bitwise_and(frame, frame, mask=brown_mask)
+    brown_cleaned = cv2.morphologyEx(brown_res, cv2.MORPH_OPEN, (5, 5), iterations=1)
+    filtered = cv2.GaussianBlur(brown_cleaned, (3, 3), 0)
+
     smoothed = utils.smoother_edges(filtered, (7, 7), (1, 1))
-    # acutal data, ~18 fps
-    hexagon = target_detection_img.get_target_corners(smoothed)
+
+    gray = cv2.cvtColor(smoothed, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_OTSU)
+
+    median = np.median(gray)
+    sigma = 0.33
+    lower_thresh = int(max(0, (1.0 - sigma) * median))
+    upper_thresh = int(min(255, (1.0 + sigma) * median))
+    canny = cv2.Canny(thresh, lower_thresh, upper_thresh)
+
+    contours, _ = cv2.findContours(canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = utils.filter_contours_area(contours, 1000)
+
+    hexagons = shape_detector.get_contours_of_shape(contours, 6)
+
+    if len(hexagons) == 0:
+        return hexagons
+
+    hexagon_contour = utils.get_largest_contour(hexagons)
+    if len(hexagon_contour) == 0:
+        return hexagon_contour
+
+    perimeter = cv2.arcLength(hexagon_contour, True)
+    hexagon = cv2.approxPolyDP(hexagon_contour, 0.05 * perimeter, True)
+
     return hexagon
 
 
-cap = cv2.VideoCapture(str(video_path))
+cap = cv2.VideoCapture(1)
 if not cap.isOpened():
     print("Cannot open video/camera")
     exit()
@@ -82,7 +101,8 @@ while True:
             no_target = False
             good_new = hexagon
             depth_mm = depth_model.predict_contour(hexagon)
-            print(depth_mm * 0.00328084)
+            depth_ft = depth_mm * 0.00328084
+            print(depth_ft, end=" ")
         # else, set no_target to True
         else:
             no_target = True
@@ -101,24 +121,33 @@ while True:
     old_points = good_new.reshape(-1, 1, 2).astype(np.float32)
     old_gray = frame_gray.copy()
 
-    ### Displaying ###
-    display_utils.draw_circles(
-        frame, good_new.reshape((-1, 2)), radius=3, color=(255, 0, 0)
-    )
-    display_utils.draw_circles(frame, utils.get_contour_centers([good_new]), radius=5)
+    centroid = utils.get_contour_centers([good_new])
 
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
-    cv2.putText(
-        frame,
-        "FPS: " + str(int(fps)),
-        (0, 50),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.75,
-        (50, 170, 50),
-        2,
-    )
 
-    cv2.imshow("frame", frame)
+    ### Displaying ###
+    if VERBOSE_LEVEL >= 1:
+        print(centroid)
+        print("fps:", fps)
+
+    if VERBOSE_LEVEL == 2:
+        display_utils.draw_circles(
+            frame, good_new.reshape((-1, 2)), radius=3, color=(255, 0, 0)
+        )
+        display_utils.draw_circles(frame, centroid, radius=5)
+
+        cv2.putText(
+            frame,
+            "FPS: " + str(int(fps)),
+            (0, 50),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.75,
+            (50, 170, 50),
+            2,
+        )
+
+        cv2.imshow("frame", frame)
+
     if cv2.waitKey(5) & 0xFF == 27:
         break
 

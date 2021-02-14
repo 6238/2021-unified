@@ -1,12 +1,25 @@
 from pathlib import Path
-import time
 
 import cv2
 import numpy as np
 
 from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 import target_detection_img, color_filtering_img
-from center_prediction import CenterPredModel
+
+# video_path = Path(
+#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-horizontal-robot-driving-720p-0.mp4"
+# )
+# video_path = Path(
+#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-vertical-robot-driving-1080p-0.mp4"
+# )
+video_path = Path(
+    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
+)
+
+
+utils = GeneralUtils()
+shape_detector = ShapeDetector()
+display_utils = DisplayUtils()
 
 
 def get_hexagon_points(frame):
@@ -52,26 +65,11 @@ def expanded_good_features(
     return corners
 
 
-utils = GeneralUtils()
-shape_detector = ShapeDetector()
-display_utils = DisplayUtils()
-
 # Parameters for lucas kanade optical flow
 lk_params = dict(
     winSize=(25, 25),
     maxLevel=2,
     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
-)
-
-
-# video_path = Path(
-#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-horizontal-robot-driving-720p-0.mp4"
-# )
-# video_path = Path(
-#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-vertical-robot-driving-1080p-0.mp4"
-# )
-video_path = Path(
-    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
 )
 
 cap = cv2.VideoCapture(str(video_path))

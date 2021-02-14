@@ -74,9 +74,23 @@ while True:
     original = frame.copy()  # saving copy before edits
 
     # equalize color and brightness
-    equalized = cv2.normalize(frame, frame, 0, 255, cv2.NORM_MINMAX)
+    # equalized = cv2.normalize(frame, None, 0, 255, cv2.NORM_MINMAX)
+
+    # this is super slow
+    img_norm = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    val = img_norm[:, :, 2]
+    mid = 0.5
+    mean = np.mean(val)
+    gamma = np.log(mid * 255) / np.log(mean)
+    val_gamma = np.power(val, gamma).clip(0, 255).astype(np.uint8)
+    val_gamma = np.power(val, gamma).clip(0, 255).astype(np.uint8)
+    img_norm[:, :, 2] = val_gamma
+    equalized = cv2.cvtColor(img_norm, cv2.COLOR_HSV2BGR)
+
     # filter by color
-    filtered = color_filtering_img.apply_color_filter(equalized)
+    filtered = color_filtering_img.apply_color_filter(
+        equalized, [9, 70, 0], [35, 255, 255]
+    )
     # smooth to remove jagged edges
     smoothed = utils.smoother_edges(filtered, (7, 7), (1, 1))
 
@@ -114,9 +128,9 @@ while True:
                     (centroid[1] + last_truth[1]) // 2,
                 ]
 
-            print("pred: ", end="")
+            # print("pred: ", end="")
 
-    print(frame_count, centroid)
+    # print(frame_count, centroid)
 
     # displaying image grid
     if len(centroid) != 0:
@@ -139,12 +153,11 @@ while True:
     cv2.imshow("grid", grid)
     cv2.imshow("frame", original)
 
-    if cv2.waitKey(5) & 0xFF == 27:
-        break
-
     if cv2.waitKey(1) == ord(" "):
         cv2.waitKey(-1)
 
+    if cv2.waitKey(5) & 0xFF == 27:
+        break
 
 # Eelease the capture at end
 cap.release()

@@ -66,20 +66,6 @@ class DepthPredModel:
 
         return np.array([self.predict_contour(contour) for contour in contours])
 
-        # if isinstance(contours, list) or (
-        #     isinstance(contours, np.ndarray) and len(contours.shape) == 2
-        # ):
-        #     return np.array([self.predict_contour(contour) for contour in contours])
-
-        # if (
-        #     isinstance(contours, np.ndarray)
-        #     and len(contours.shape) == 3
-        #     and contours.shape[1:] == (1, 2)
-        # ):
-        #     return np.array([self.predict_contour(contour[0]) for contour in contours])
-
-        # raise ValueError("Unknown contour shape")
-
     def predict_contour(self, contour):
         if self.coefs is None or self.poly_func is None:
             raise ValueError("Must fit before predicting")
@@ -120,18 +106,3 @@ class DepthPredModel:
             dists.append(np.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2))
 
         return np.array(dists, dtype=np.float32)
-
-
-if __name__ == "__main__":
-    pixel_to_dist_path = Path(
-        r"E:\code\projects\frc-vision\datasets\target-dataset\vision-videos\distance-measuring\target_points.json"
-    )
-    meta_path = Path(
-        r"E:\code\projects\frc-vision\datasets\target-dataset\vision-videos\distance-measuring\meta.json"
-    )
-
-    depth_model = DepthPredModel()
-    depth_model.load_from_json(meta_path, pixel_to_dist_path)
-
-    fig, ax = depth_model.plot_func(range(0, 9150))
-    plt.show()
