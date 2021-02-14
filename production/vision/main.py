@@ -34,8 +34,8 @@ def get_hexagon_points(frame):
     blurred = cv2.medianBlur(frame, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-    lower_brown = np.array([5, 0, 60])
-    upper_brown = np.array([20, 180, 255])
+    lower_brown = np.array([0, 0, 0])
+    upper_brown = np.array([255, 255, 255])
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(frame, frame, mask=brown_mask)
     brown_cleaned = cv2.morphologyEx(brown_res, cv2.MORPH_OPEN, (5, 5), iterations=1)
@@ -90,6 +90,8 @@ while True:
         break
     frame_count += 1
     timer = cv2.getTickCount()
+
+    frame = cv2.resize(frame, (1280, 720))
 
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
