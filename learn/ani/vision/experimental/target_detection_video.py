@@ -116,7 +116,7 @@ while True:
 
             print("pred: ", end="")
 
-    # print(frame_count, centroid)
+    print(frame_count, centroid)
 
     # displaying image grid
     if len(centroid) != 0:

@@ -90,6 +90,7 @@ while True:
     old_points = good_new.reshape(-1, 1, 2).astype(np.float32)
     old_gray = frame_gray.copy()
 
+    ### Displaying ###
     display_utils.draw_circles(
         frame, good_new.reshape((-1, 2)), radius=3, color=(255, 0, 0)
     )
