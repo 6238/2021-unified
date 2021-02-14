@@ -60,4 +60,9 @@ public class Slider {
     public double getDouble() {
         return getDouble(lastDouble);
     }
+
+    public void setDouble(double value) {
+        getEntry().setDouble(value);
+        lastDouble = value;
+    }
 }

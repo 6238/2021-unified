@@ -36,7 +36,7 @@ public class RobotContainer {
         joystick = new Joystick(OIConstants.JOYSTICK_A);
         driveSubsystem = new DriveSubsystem(factory);
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
-        piCommand = new PiCommand();
+        piCommand = new PiCommand(factory);
 
         driveSubsystem.setDefaultCommand(driveCommand);
         piCommand.schedule();
