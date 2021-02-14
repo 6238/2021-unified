@@ -1,3 +1,8 @@
+"""
+connect to network tables server
+generate random numbers
+time module for delay
+"""
 from networktables import NetworkTables
 from random import random
 import time
