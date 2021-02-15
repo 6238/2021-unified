@@ -5,13 +5,14 @@ import numpy as np
 
 from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 from depth_prediction import DepthPredModel
-import target_detection_img, color_filtering_img
+import target_detection_img
+import color_filtering_img
 
 pixel_to_dist_path = Path(
-    r"E:\code\projects\frc-vision\datasets\target-dataset\vision-videos\distance-measuring\target_points.json"
+    r"./experimental/target_points.json"
 )
 meta_path = Path(
-    r"E:\code\projects\frc-vision\datasets\target-dataset\vision-videos\distance-measuring\meta.json"
+    r"./experimental/meta.json"
 )
 # video_path = Path(
 #     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-horizontal-robot-driving-720p-0.mp4"
@@ -44,7 +45,8 @@ def get_hexagon_points(frame):
     # equalize color and brightness, 2000+ fps
     equalized = cv2.normalize(frame, None, 0, 255, cv2.NORM_MINMAX)
     # filter by color, ~60fps
-    filtered = color_filtering_img.apply_color_filter(equalized)
+    filtered = color_filtering_img.apply_color_filter(
+        equalized, [0, 75, 200], [16, 255, 255])
     # smooth to remove jagged edges, 200+ fps
     smoothed = utils.smoother_edges(filtered, (7, 7), (1, 1))
     # acutal data, ~18 fps
@@ -52,13 +54,15 @@ def get_hexagon_points(frame):
     return hexagon
 
 
-cap = cv2.VideoCapture(str(video_path))
+cap = cv2.VideoCapture(1)
 if not cap.isOpened():
     print("Cannot open video/camera")
     exit()
 
 
 ret, old_frame = cap.read()
+old_frame = cv2.resize(old_frame, (1280, 720))
+
 old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 old_points = np.empty((0, 1, 2), dtype=np.float32)
 
@@ -71,7 +75,7 @@ while True:
         break
     frame_count += 1
     timer = cv2.getTickCount()
-
+    frame = cv2.resize(frame, (1280, 720))
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # every 10 frames, or if there isn't a target, detect
@@ -105,7 +109,8 @@ while True:
     display_utils.draw_circles(
         frame, good_new.reshape((-1, 2)), radius=3, color=(255, 0, 0)
     )
-    display_utils.draw_circles(frame, utils.get_contour_centers([good_new]), radius=5)
+    display_utils.draw_circles(
+        frame, utils.get_contour_centers([good_new]), radius=5)
 
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
     cv2.putText(
