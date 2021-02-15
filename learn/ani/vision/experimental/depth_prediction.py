@@ -19,7 +19,6 @@ class DepthPredModel:
             self.fit(dists, pixel_lengths, known_irl_length=self.known_length)
         else:
             self.coefs = None
-            self.poly_func = None
 
     def load_from_json(self, meta_path, points_path):
         with open(meta_path, "r") as f:
@@ -39,8 +38,6 @@ class DepthPredModel:
             pixel_len = DepthPredModel.find_pixel_lengths(col).mean()
             pixel_lengths.append(pixel_len)
 
-        print("pixel_lengths", pixel_lengths)
-
         self.fit(dists, pixel_lengths)
 
     def fit(self, dists, pixel_lengths, known_irl_length=None):
@@ -49,31 +46,33 @@ class DepthPredModel:
         if self.known_length is None:
             raise ValueError("Must supply known_irl_length")
 
-        def rational(x, numerator, denominator):
-            return poly.polyval(x, numerator) / poly.polyval(x, denominator)
-
-        def rational0_1(x, p0, q1, q2):
-            return rational(x, [p0], [q1, q2])
-
-        popt, pcov = optimize.curve_fit(rational0_1, pixel_lengths, dists)
-
+        popt, _ = optimize.curve_fit(self.__rational0_1, pixel_lengths, dists)
         self.coefs = popt
-        self.poly_func = poly.Polynomial(self.coefs)
+        return popt
+
+    def __rational(self, x, numerator, denominator):
+        return poly.polyval(x, numerator) / poly.polyval(x, denominator)
+
+    def __rational0_1(self, x, p0, q1, q2):
+        return self.__rational(x, [p0], [q1, q2])
+
+    def _poly_func(self, x):
+        return self.__rational0_1(x, *self.coefs)
 
     def predict(self, pixel_lengths):
-        if self.coefs is None or self.poly_func is None:
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
 
-        return self.poly_func(pixel_lengths)
+        return self._poly_func(pixel_lengths)
 
     def predict_contours(self, contours):
-        if self.coefs is None or self.poly_func is None:
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
 
         return np.array([self.predict_contour(contour) for contour in contours])
 
     def predict_contour(self, contour, resolution_scale=1):
-        if self.coefs is None or self.poly_func is None:
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
 
         if isinstance(contour, list) or (
@@ -81,27 +80,33 @@ class DepthPredModel:
             and len(contour.shape) == 2
             and contour.shape[1] == 2
         ):
-            return self.poly_func(
-                self.find_pixel_lengths(contour).mean() * resolution_scale
-            )
+            contour = contour
+            # return self._poly_func(
+            #     self.find_pixel_lengths(contour).mean() * resolution_scale
+            # )
 
-        if (
+        elif (
             isinstance(contour, np.ndarray)
             and len(contour.shape) == 3
             and contour.shape[1:] == (1, 2)
         ):
-            print("mean pixel size:", self.find_pixel_lengths(contour[:, 0, :]).mean())
-            return self.poly_func(
-                self.find_pixel_lengths(contour[:, 0, :]).mean() * resolution_scale
-            )
+            contour = contour[:, 0, :]
+            # return self._poly_func(
+            #     self.find_pixel_lengths(contour[:, 0, :]).mean() * resolution_scale
+            # )
 
-        raise ValueError("Unknown contour shape")
+        else:
+            raise ValueError("Unknown contour shape")
+
+        return self._poly_func(
+            self.find_pixel_lengths(contour).mean() * (1 / resolution_scale)
+        )
 
     def plot_func(self, x):
-        if self.coefs is None or self.poly_func is None:
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
         fig, ax = plt.subplots()
-        ax.plot(x, self.poly_func(x))
+        ax.plot(x, self._poly_func(x))
         return fig, ax
 
     @classmethod
@@ -123,12 +128,10 @@ if __name__ == "__main__":
     pixel_to_dist_path = Path().cwd() / "target_points.json"
     meta_path = Path().cwd() / "meta.json"
 
-    # depth_model = DepthPredModel()
-    # depth_model.load_from_json(meta_path, pixel_to_dist_path)
-
     with open(meta_path, "r") as f:
         meta = json.load(f)
     df = pd.read_json(pixel_to_dist_path)
+    print(df)
 
     known_length = meta["known_length"]
 
@@ -142,44 +145,39 @@ if __name__ == "__main__":
         pixel_len = DepthPredModel.find_pixel_lengths(col).mean()
         pixel_lengths.append(pixel_len)
 
-    print(dists)
+    print("dists", dists)
     print("pixel_lengths", pixel_lengths)
 
     depth_model = DepthPredModel()
     depth_model.load_from_json(meta_path, pixel_to_dist_path)
 
-    fig, ax = depth_model.plot_func(np.linspace(0, 200, 100))
-    ax.plot(pixel_lengths, dists, "g", label="true")
-
-    def rational(x, numerator, denominator):
-        """
-        The general rational function description.
-        p is a list with the polynomial coefficients in the numerator
-        q is a list with the polynomial coefficients (except the first one)
-        in the denominator
-        The zeroth order coefficient of the denominator polynomial is fixed at 1.
-        Numpy stores coefficients in [x**2 + x + 1] order, so the fixed
-        zeroth order denominator coefficent must comes last.
-        """
-        return poly.polyval(x, numerator) / poly.polyval(x, denominator)
-
-    def rational3_3(x, p0, p1, p2, q1, q2):
-        return rational(x, [p0, p1, p2], [q1, q2])
-
-    def rational1_1(x, p0, q1, q2):
-        return rational(x, [p0], [q1, q2])
-
-    popt, pcov = optimize.curve_fit(rational1_1, pixel_lengths, dists)
-    print("popt", popt)
+    print("model coefs", depth_model.coefs)
 
     x = np.linspace(0, 200, 100)
 
-    # fig, ax = plt.subplots()
-    # ax.plot(
-    #     x,
-    #     rational1_1(x, *popt),
-    #     "r",
-    #     label="pred",
-    # )
-    # ax.plot(pixel_lengths, dists, "b", label="true")
+    fig, ax = plt.subplots()
+    preds = depth_model._poly_func(x)
+    ax.plot(x, preds, "g")
+    ax.plot(pixel_lengths, dists, "b", label="true")
     plt.show()
+
+    print(depth_model.predict(75))
+    print(depth_model.predict_contour(df["30ft"].tolist(), 0.5))
+
+    print(depth_model.find_pixel_lengths(df["30ft_rescale0.5"].tolist()).mean())
+    print(depth_model.predict_contour(df["30ft_rescale0.5"].tolist(), 0.5))
+
+    # def rational(x, numerator, denominator):
+    #     return poly.polyval(x, numerator) / poly.polyval(x, denominator)
+
+    # def rational0_1(x, p0, q1, q2):
+    #     return rational(x, [p0], [q1, q2])
+
+    # def rational3_3(x, p0, p1, p2, q1, q2):
+    #     return rational(x, [p0, p1, p2], [q1, q2])
+
+    # def rational1_1(x, p0, q1, q2):
+    #     return rational(x, [p0], [q1, q2])
+
+    # popt, pcov = optimize.curve_fit(rational1_1, pixel_lengths, dists)
+    # print("popt", popt)

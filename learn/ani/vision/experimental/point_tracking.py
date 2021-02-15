@@ -101,8 +101,6 @@ while True:
         if len(hexagon) != 0:
             no_target = False
             good_new = hexagon
-            depth_mm = depth_model.predict_contour(hexagon, RESOLUTION_SCALE)
-            print(depth_mm * 0.00328084)
         # else, set no_target to True
         else:
             no_target = True
@@ -118,13 +116,18 @@ while True:
         else:
             good_new = new_points[status == 1]
 
+    if good_new.size != 0:
+        depth_ft = depth_model.predict_contour(good_new, RESOLUTION_SCALE) * 0.00328084
+    else:
+        depth_ft = -1
+
     old_points = good_new.reshape(-1, 1, 2).astype(np.float32)
     old_gray = frame_gray.copy()
 
     centroid = utils.get_contour_centers([good_new]) if good_new.size != 0 else []
 
     ### Displaying ###
-    print(centroid)
+    # print(centroid)
     display_utils.draw_circles(
         frame, good_new.reshape((-1, 2)), radius=3, color=(255, 0, 0)
     )
@@ -133,10 +136,10 @@ while True:
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
     cv2.putText(
         frame,
-        "FPS: " + str(int(fps)),
+        f"FPS {int(fps)}|Depth {round(depth_ft, 2)}",
         (0, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.75,
+        0.5,
         (50, 170, 50),
         2,
     )
