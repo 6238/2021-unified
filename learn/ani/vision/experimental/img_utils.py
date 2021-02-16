@@ -157,7 +157,7 @@ class ShapeDetector:
 
 class DisplayUtils:
     def display_img(self, img, window_name="img", wait_key=-1):
-        cv2.imshow(window_name, img)
+        # cv2.imshow(window_name, img)
         cv2.waitKey(wait_key)
 
     def detect_draw_contours(self, src, dest=None):
