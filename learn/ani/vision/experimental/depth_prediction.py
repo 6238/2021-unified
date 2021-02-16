@@ -81,9 +81,6 @@ class DepthPredModel:
             and contour.shape[1] == 2
         ):
             contour = contour
-            # return self._poly_func(
-            #     self.find_pixel_lengths(contour).mean() * resolution_scale
-            # )
 
         elif (
             isinstance(contour, np.ndarray)
@@ -91,9 +88,6 @@ class DepthPredModel:
             and contour.shape[1:] == (1, 2)
         ):
             contour = contour[:, 0, :]
-            # return self._poly_func(
-            #     self.find_pixel_lengths(contour[:, 0, :]).mean() * resolution_scale
-            # )
 
         else:
             raise ValueError("Unknown contour shape")
@@ -142,8 +136,8 @@ if __name__ == "__main__":
     pixel_lengths = []
     for col_name in df:
         col = df[col_name].tolist()
-        pixel_len = DepthPredModel.find_pixel_lengths(col).mean()
-        pixel_lengths.append(pixel_len)
+        pixel_len = DepthPredModel.find_pixel_lengths(col)
+        pixel_lengths.append(pixel_len.mean())
 
     print("dists", dists)
     print("pixel_lengths", pixel_lengths)
@@ -163,9 +157,6 @@ if __name__ == "__main__":
 
     print(depth_model.predict(75))
     print(depth_model.predict_contour(df["30ft"].tolist(), 0.5))
-
-    print(depth_model.find_pixel_lengths(df["30ft_rescale0.5"].tolist()).mean())
-    print(depth_model.predict_contour(df["30ft_rescale0.5"].tolist(), 0.5))
 
     # def rational(x, numerator, denominator):
     #     return poly.polyval(x, numerator) / poly.polyval(x, denominator)

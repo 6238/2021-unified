@@ -1,4 +1,6 @@
 from pathlib import Path
+from collections import deque
+from typing import Deque
 
 import cv2
 import numpy as np
@@ -14,27 +16,32 @@ meta_path = Path(r"./meta.json")
 # video_path = Path(
 #     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/orange-teal-target-720p.mp4"
 # )
-video_path = Path(
-    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/orange-teal-target-1080p.mp4"
-)
+# video_path = Path(
+#     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/orange-teal-target-1080p.mp4"
+# )
 # video_path = Path(
 #     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/vision-video-trees-white-notape-lowres-0.mp4"
 # )
+video_path = Path(
+    "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/distance-measuring/all_dists.mp4"
+)
 
-RESOLUTION_SCALE = 0.5
+RESOLUTION_SCALE = 1
+KNOWN_DEPTH_WEIGHT = 0.5
+
 utils = GeneralUtils()
 shape_detector = ShapeDetector()
 display_utils = DisplayUtils()
 
 depth_model = DepthPredModel()
 depth_model.load_from_json(meta_path, pixel_to_dist_path)
-
+depth_deque = Deque(maxlen=5)
 
 # Parameters for lucas kanade optical flow
 lk_params = dict(
-    winSize=(25, 25),
-    maxLevel=2,
-    criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
+    winSize=(27, 27),
+    maxLevel=5,
+    criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 1000, 1.01),
 )
 
 
@@ -44,7 +51,7 @@ def get_hexagon_points(frame):
     # filter by color, ~60fps
     # orange filter: [0, 75, 200], [16, 255, 255]
     filtered = color_filtering_img.apply_color_filter(
-        equalized, [0, 50, 0], [16, 255, 255]
+        equalized, [0, 50, 0], [32, 255, 255]
     )
     # smooth to remove jagged edges, 200+ fps
     smoothed = utils.smoother_edges(filtered, (7, 7), (1, 1))
@@ -101,6 +108,10 @@ while True:
         if len(hexagon) != 0:
             no_target = False
             good_new = hexagon
+            depth_ft = (
+                depth_model.predict_contour(hexagon, RESOLUTION_SCALE) * 0.00328084
+            )
+            depth_deque.append(depth_ft)
         # else, set no_target to True
         else:
             no_target = True
@@ -115,11 +126,15 @@ while True:
             good_new = np.array([])
         else:
             good_new = new_points[status == 1]
-
-    if good_new.size != 0:
-        depth_ft = depth_model.predict_contour(good_new, RESOLUTION_SCALE) * 0.00328084
-    else:
-        depth_ft = -1
+            if good_new.size != 0:
+                depth_ft_pred = (
+                    depth_model.predict_contour(good_new, RESOLUTION_SCALE) * 0.00328084
+                )
+                depth_ft = depth_deque[-1] * KNOWN_DEPTH_WEIGHT + depth_ft_pred * (
+                    1.0 - KNOWN_DEPTH_WEIGHT
+                )
+            else:
+                depth_ft = -1
 
     old_points = good_new.reshape(-1, 1, 2).astype(np.float32)
     old_gray = frame_gray.copy()
@@ -145,6 +160,7 @@ while True:
     )
 
     cv2.imshow("frame", frame)
+
     if cv2.waitKey(5) & 0xFF == 27:
         break
 
