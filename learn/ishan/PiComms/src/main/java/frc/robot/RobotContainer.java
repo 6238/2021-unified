@@ -4,15 +4,19 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.OIConstants;
-import frc.robot.commands.DriveCommand;
-import frc.robot.commands.PiCommand;
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.Factory;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import frc.robot.Constants.OIConstants;
+
+import frc.robot.commands.PiCommand;
+import frc.robot.commands.DriveCommand;
+
+import frc.robot.subsystems.Factory;
+import frc.robot.subsystems.PiSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -25,21 +29,27 @@ public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final Factory factory = new Factory();
     private final Joystick joystick;
+    
+    private final PiSubsystem piSubsystem;
     private final DriveSubsystem driveSubsystem;
-    private final DriveCommand driveCommand;
+
     private final PiCommand piCommand;
+    private final DriveCommand driveCommand;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
         joystick = new Joystick(OIConstants.JOYSTICK_A);
+        
+        piSubsystem = new PiSubsystem(factory);
         driveSubsystem = new DriveSubsystem(factory);
-        driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
-        piCommand = new PiCommand(factory);
 
+        piCommand = new PiCommand(factory, piSubsystem);
+        driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
+
+        piSubsystem.setDefaultCommand(piCommand);
         driveSubsystem.setDefaultCommand(driveCommand);
-        piCommand.schedule();
 
         // Configure the button bindings
         configureButtonBindings();

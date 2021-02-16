@@ -13,10 +13,12 @@ NetworkTables.initialize(server='roborio-6238-frc.local')
 sd = NetworkTables.getTable('SmartDashboard')
 
 while True:
-    x = random() * 1280 - 640
-    y = random() * 720 - 360
+    x = random() * 1280
+    y = random() * 720
+    z = random() * 30
 
     sd.putNumber('x', x)
     sd.putNumber('y', y)
+    sd.putNumber('z', z)
 
     time.sleep(1)
