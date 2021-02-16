@@ -59,6 +59,21 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+
+### Python ###
+# ignore large files contained in the datasets folders
+datasets/
+
+# ignore useless pycache files
+__pycache__/
+
+# ignore useless jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# ignore numpy array saves
+*.npy
+
+
 ### Linux ###
 *~
 
@@ -104,7 +119,7 @@ Temporary Items
 
 ### VisualStudioCode ###
 .vscode/*
-!.vscode/settings.json
+# !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
