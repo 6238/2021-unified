@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-import cv2
+from scipy import optimize
 import numpy as np
 import numpy.polynomial.polynomial as poly
 import pandas as pd
@@ -19,7 +19,6 @@ class DepthPredModel:
             self.fit(dists, pixel_lengths, known_irl_length=self.known_length)
         else:
             self.coefs = None
-            self.poly_func = None
 
     def load_from_json(self, meta_path, points_path):
         with open(meta_path, "r") as f:
@@ -47,27 +46,33 @@ class DepthPredModel:
         if self.known_length is None:
             raise ValueError("Must supply known_irl_length")
 
-        focii = []
-        for dist, pixel_len in zip(dists, pixel_lengths):
-            focii.append(pixel_len * dist / self.known_length)
+        popt, _ = optimize.curve_fit(self.__rational0_1, pixel_lengths, dists)
+        self.coefs = popt
+        return popt
 
-        self.coefs = poly.polyfit(dists, focii, 3)
-        self.poly_func = poly.Polynomial(self.coefs)
+    def __rational(self, x, numerator, denominator):
+        return poly.polyval(x, numerator) / poly.polyval(x, denominator)
+
+    def __rational0_1(self, x, p0, q1, q2):
+        return self.__rational(x, [p0], [q1, q2])
+
+    def _poly_func(self, x):
+        return self.__rational0_1(x, *self.coefs)
 
     def predict(self, pixel_lengths):
-        if self.coefs is None or self.poly_func is None:
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
 
-        return self.poly_func(pixel_lengths)
+        return self._poly_func(pixel_lengths)
 
     def predict_contours(self, contours):
-        if self.coefs is None or self.poly_func is None:
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
 
         return np.array([self.predict_contour(contour) for contour in contours])
 
-    def predict_contour(self, contour):
-        if self.coefs is None or self.poly_func is None:
+    def predict_contour(self, contour, resolution_scale=1):
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
 
         if isinstance(contour, list) or (
@@ -75,22 +80,33 @@ class DepthPredModel:
             and len(contour.shape) == 2
             and contour.shape[1] == 2
         ):
-            return self.poly_func(self.find_pixel_lengths(contour).mean())
+            contour = contour
+            # return self._poly_func(
+            #     self.find_pixel_lengths(contour).mean() * resolution_scale
+            # )
 
-        if (
+        elif (
             isinstance(contour, np.ndarray)
             and len(contour.shape) == 3
             and contour.shape[1:] == (1, 2)
         ):
-            return self.poly_func(self.find_pixel_lengths(contour[:, 0, :]).mean())
+            contour = contour[:, 0, :]
+            # return self._poly_func(
+            #     self.find_pixel_lengths(contour[:, 0, :]).mean() * resolution_scale
+            # )
 
-        raise ValueError("Unknown contour shape")
+        else:
+            raise ValueError("Unknown contour shape")
+
+        return self._poly_func(
+            self.find_pixel_lengths(contour).mean() * (1 / resolution_scale)
+        )
 
     def plot_func(self, x):
-        if self.coefs is None or self.poly_func is None:
+        if self.coefs is None:
             raise ValueError("Must fit before predicting")
         fig, ax = plt.subplots()
-        ax.plot(x, self.poly_func(x))
+        ax.plot(x, self._poly_func(x))
         return fig, ax
 
     @classmethod

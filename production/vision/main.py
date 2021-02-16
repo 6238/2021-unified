@@ -8,6 +8,7 @@ from depth_prediction import DepthPredModel
 
 # zero for completely silent, 1 for just console logs, 2 for displaying frames
 VERBOSE_LEVEL = 2
+RESOLUTION_SCALE = 0.5
 pixel_to_dist_path = Path().cwd() / "target_points.json"
 meta_path = Path().cwd() / "meta.json"
 
