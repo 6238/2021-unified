@@ -10,7 +10,7 @@ print(img.shape)
 # displaying image
 # plt.imshow(img)
 # plt.show()
-cv2.imshow("original image", img)
+# cv2.imshow("original image", img)
 cv2.waitKey(-1)
 
 # crop image
@@ -31,5 +31,5 @@ edges = cv2.Canny(cropped_img, 400, 200)
 # displaying cropped image
 # plt.imshow(cropped_img)
 # plt.show()
-cv2.imshow("edges", edges)
+# cv2.imshow("edges", edges)
 cv2.waitKey(-1)
