@@ -13,9 +13,10 @@ def draw_targets(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     blurred = cv2.GaussianBlur(gray, (3, 3), 0)
-    thresh = cv2.adaptiveThreshold(
-        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 201, 0
-    )
+    # thresh = cv2.adaptiveThreshold(
+    #     blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 201, 0
+    # )
+    _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_OTSU)
 
     median = np.median(gray)
     sigma = 0.33
@@ -41,13 +42,14 @@ def draw_targets(frame):
     return frame_list
 
 
-def get_target_centroid(frame):
+def get_hexagon_contour(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     blurred = cv2.GaussianBlur(gray, (3, 3), 0)
-    thresh = cv2.adaptiveThreshold(
-        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 201, 0
-    )
+    # thresh = cv2.adaptiveThreshold(
+    #     blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 201, 0
+    # )
+    _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_OTSU)
 
     median = np.median(gray)
     sigma = 0.33
@@ -66,6 +68,28 @@ def get_target_centroid(frame):
         return hexagons
 
     hexagon = utils.get_largest_contour(hexagons)
-    centroids = utils.get_contour_centers([hexagon])
+
+    return hexagon
+
+
+def get_target_centroid(frame):
+    hexagon_contour = get_hexagon_contour(frame)
+
+    if len(hexagon_contour) == 0:
+        return hexagon_contour
+
+    centroids = utils.get_contour_centers([hexagon_contour])
 
     return centroids[0]
+
+
+def get_target_corners(frame):
+
+    hexagon_contour = get_hexagon_contour(frame)
+    if len(hexagon_contour) == 0:
+        return hexagon_contour
+
+    perimeter = cv2.arcLength(hexagon_contour, True)
+    approx = cv2.approxPolyDP(hexagon_contour, 0.05 * perimeter, True)
+
+    return approx

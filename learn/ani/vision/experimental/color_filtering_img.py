@@ -10,13 +10,13 @@ utils = GeneralUtils()
 display_utils = DisplayUtils()
 
 
-def apply_color_filter(img):
+def apply_color_filter(img, lower=[5, 0, 60], upper=[20, 180, 255]):
 
     blurred = cv2.medianBlur(img, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-    lower_brown = np.array([5, 0, 60])
-    upper_brown = np.array([20, 180, 255])
+    lower_brown = np.array(lower)
+    upper_brown = np.array(upper)
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
     brown_res = cv2.bitwise_and(img, img, mask=brown_mask)
 
