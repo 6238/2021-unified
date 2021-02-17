@@ -1,6 +1,5 @@
 from pathlib import Path
 from collections import deque
-from typing import Deque
 
 import cv2
 import numpy as np
@@ -9,6 +8,10 @@ from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 from depth_prediction import DepthPredModel
 import target_detection_img
 import color_filtering_img
+
+RESOLUTION_SCALE = 1
+KNOWN_DEPTH_WEIGHT = 0.5
+DETECT_EVERY_N_FRAMES = 15
 
 pixel_to_dist_path = Path(r"./target_points.json")
 meta_path = Path(r"./meta.json")
@@ -26,16 +29,13 @@ video_path = Path(
     "E:/code/projects/frc-vision/datasets/target-dataset/vision-videos/distance-measuring/all_dists.mp4"
 )
 
-RESOLUTION_SCALE = 1
-KNOWN_DEPTH_WEIGHT = 0.5
-
 utils = GeneralUtils()
 shape_detector = ShapeDetector()
 display_utils = DisplayUtils()
 
 depth_model = DepthPredModel()
 depth_model.load_from_json(meta_path, pixel_to_dist_path)
-depth_deque = Deque(maxlen=5)
+depth_deque = deque(maxlen=5)
 
 # Parameters for lucas kanade optical flow
 lk_params = dict(
@@ -70,6 +70,9 @@ if not cap.isOpened():
     print("Cannot open video/camera")
     exit()
 
+# fourcc = cv2.VideoWriter_fourcc(*"XVID")
+# out = cv2.VideoWriter("sample-output-120fps.avi", fourcc, 120, (1280, 720))
+
 
 ret, old_frame = cap.read()
 old_frame = cv2.resize(
@@ -101,8 +104,8 @@ while True:
     )
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # every 10 frames, or if there isn't a target, detect
-    if frame_count % 15 == 0 or no_target:
+    # every n frames, or if there isn't a target, detect
+    if frame_count % DETECT_EVERY_N_FRAMES == 0 or no_target:
         hexagon = get_hexagon_points(frame)
         # if hexagon is found, set good points to detection and set no_target to False
         if len(hexagon) != 0:
@@ -118,7 +121,7 @@ while True:
             good_new = np.array([])
 
     # if it is time to track or nothing was detected
-    if frame_count % 10 != 0 or good_new.size == 0:
+    if frame_count % DETECT_EVERY_N_FRAMES != 0 or good_new.size == 0:
         new_points, status, error = cv2.calcOpticalFlowPyrLK(
             old_gray, frame_gray, old_points, None, **lk_params
         )
@@ -151,7 +154,7 @@ while True:
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
     cv2.putText(
         frame,
-        f"FPS {int(fps)}|Depth {round(depth_ft, 2)}",
+        f"FPS {int(fps)}||Depth {round(depth_ft, 2)}",
         (0, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,
@@ -160,14 +163,16 @@ while True:
     )
 
     cv2.imshow("frame", frame)
+    # out.write(frame)
 
-    if cv2.waitKey(5) & 0xFF == 27:
+    if cv2.waitKey(20) == 27:
         break
 
-    if cv2.waitKey(1) == ord(" "):
-        cv2.waitKey(-1)
+    # if cv2.waitKey(1) == ord(" "):
+    #     cv2.waitKey(-1)
 
 
 # Release the capture at end
 cap.release()
+# out.release()
 cv2.destroyAllWindows()
