@@ -8,7 +8,9 @@ from depth_prediction import DepthPredModel
 
 # zero for completely silent, 1 for just console logs, 2 for displaying frames
 VERBOSE_LEVEL = 2
-RESOLUTION_SCALE = 0.5
+RESOLUTION_SCALE = 1
+DETECT_EVERY_N_FRAMES = 15
+
 pixel_to_dist_path = Path().cwd() / "target_points.json"
 meta_path = Path().cwd() / "meta.json"
 
@@ -23,8 +25,8 @@ depth_model.load_from_json(meta_path, pixel_to_dist_path)
 
 # Parameters for lucas kanade optical flow
 lk_params = dict(
-    winSize=(25, 25),
-    maxLevel=2,
+    winSize=(27, 27),
+    maxLevel=5,
     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
 )
 
@@ -35,14 +37,14 @@ def get_hexagon_points(frame):
     blurred = cv2.medianBlur(frame, 5)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-    lower_brown = np.array([0, 75, 200])
-    upper_brown = np.array([16, 255, 255])
-    brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
-    brown_res = cv2.bitwise_and(frame, frame, mask=brown_mask)
-    brown_cleaned = cv2.morphologyEx(brown_res, cv2.MORPH_OPEN, (5, 5), iterations=1)
-    filtered = cv2.GaussianBlur(brown_cleaned, (3, 3), 0)
+    lower_filter = np.array([0, 50, 0])
+    upper_filter = np.array([32, 255, 255])
+    color_mask = cv2.inRange(hsv, lower_filter, upper_filter)
+    color_res = cv2.bitwise_and(frame, frame, mask=color_mask)
+    cv2.morphologyEx(color_res, cv2.MORPH_OPEN, (5, 5), iterations=1, dst=color_res)
+    cv2.GaussianBlur(color_res, (3, 3), 0, dst=color_res)
 
-    smoothed = utils.smoother_edges(filtered, (7, 7), (1, 1))
+    smoothed = utils.smoother_edges(color_res, (7, 7), (1, 1))
 
     gray = cv2.cvtColor(smoothed, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -79,6 +81,13 @@ if not cap.isOpened():
 
 
 ret, old_frame = cap.read()
+old_frame = cv2.resize(
+    old_frame,
+    (
+        int(old_frame.shape[1] * RESOLUTION_SCALE),
+        int(old_frame.shape[0] * RESOLUTION_SCALE),
+    ),
+)
 old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 old_points = np.empty((0, 1, 2), dtype=np.float32)
 
@@ -92,30 +101,36 @@ while True:
     frame_count += 1
     timer = cv2.getTickCount()
 
-    frame = cv2.resize(frame, (1280, 720))
-
+    frame = cv2.resize(
+        frame,
+        (
+            int(frame.shape[1] * RESOLUTION_SCALE),
+            int(frame.shape[0] * RESOLUTION_SCALE),
+        ),
+    )
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # every 10 frames, or if there isn't a target, detect
-    if frame_count % 15 == 0 or no_target:
+    # every n frames, or if there isn't a target, detect
+    if frame_count % DETECT_EVERY_N_FRAMES == 0 or no_target:
         hexagon = get_hexagon_points(frame)
         # if hexagon is found, set good points to detection and set no_target to False
         if len(hexagon) != 0:
             no_target = False
             good_new = hexagon
-            depth_mm = depth_model.predict_contour(hexagon)
-            depth_ft = depth_mm * 0.00328084
-            print(depth_ft, end=" ")
+            depth_ft = (
+                depth_model.predict_contour(hexagon, RESOLUTION_SCALE) * 0.00328084
+            )
         # else, set no_target to True
         else:
             no_target = True
             good_new = np.array([])
 
     # if it is time to track or nothing was detected
-    if frame_count % 10 != 0 or good_new.size == 0:
+    if frame_count % DETECT_EVERY_N_FRAMES != 0 or good_new.size == 0:
         new_points, status, error = cv2.calcOpticalFlowPyrLK(
             old_gray, frame_gray, old_points, None, **lk_params
         )
+        depth_ft = -1
         if new_points is None:  # no points left in frame
             good_new = np.array([])
         else:
@@ -130,8 +145,7 @@ while True:
 
     ### Displaying ###
     if VERBOSE_LEVEL >= 1:
-        print(centroid)
-        print("fps:", fps)
+        print(f"{centroid}, {depth_ft} || fps:{fps}")
 
     if VERBOSE_LEVEL == 2:
         display_utils.draw_circles(
@@ -141,10 +155,10 @@ while True:
 
         cv2.putText(
             frame,
-            "FPS: " + str(int(fps)),
+            f"FPS {int(fps)}||Depth {round(depth_ft, 2)}",
             (0, 50),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.75,
+            0.5,
             (50, 170, 50),
             2,
         )
@@ -153,9 +167,6 @@ while True:
 
     if cv2.waitKey(5) & 0xFF == 27:
         break
-
-    if cv2.waitKey(1) == ord(" "):
-        cv2.waitKey(-1)
 
 
 # Release the capture at end

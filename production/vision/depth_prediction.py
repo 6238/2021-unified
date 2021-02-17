@@ -81,9 +81,6 @@ class DepthPredModel:
             and contour.shape[1] == 2
         ):
             contour = contour
-            # return self._poly_func(
-            #     self.find_pixel_lengths(contour).mean() * resolution_scale
-            # )
 
         elif (
             isinstance(contour, np.ndarray)
@@ -91,9 +88,6 @@ class DepthPredModel:
             and contour.shape[1:] == (1, 2)
         ):
             contour = contour[:, 0, :]
-            # return self._poly_func(
-            #     self.find_pixel_lengths(contour[:, 0, :]).mean() * resolution_scale
-            # )
 
         else:
             raise ValueError("Unknown contour shape")
