@@ -35,6 +35,8 @@ public class PiCommand extends CommandBase {
         xSlider = factory.getSlider("x", 0, 0, 1280);
         ySlider = factory.getSlider("y", 0, 0, 720);
         zSlider = factory.getSlider("z", 0, 0, 30);
+
+        addRequirements(piSubsystem);
     }
 
     // Called when the command is initially scheduled.

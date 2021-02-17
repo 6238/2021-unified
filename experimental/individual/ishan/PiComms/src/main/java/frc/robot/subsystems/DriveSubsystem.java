@@ -67,7 +67,8 @@ public class DriveSubsystem extends SubsystemBase {
                 Constants.TIMEOUT_MS);
 
         imu = new ADIS16470_IMU();
-        imu.setYawAxis(IMUAxis.kZ);
+        imu.setYawAxis(IMUAxis.kY);
+        imu.calibrate();
     }
 
     public void drive(double xSpeed, double rot) {
