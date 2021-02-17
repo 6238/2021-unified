@@ -267,6 +267,9 @@ dmypy.json
 # profiling data
 .prof
 
+# Numpy stuff
+*.npy
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
