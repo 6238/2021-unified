@@ -326,3 +326,5 @@ gradle-app.setting
 **/build/
 
 # End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks,c++,java,linux,macos,windows,gradle,visualstudiocode,python
+
+*.mp4
