@@ -32,9 +32,9 @@ public class PiCommand extends CommandBase {
         factory = f;
         piSubsystem = subsystem;
 
-        xSlider = factory.getSlider("x", 0, 0, 1280);
-        ySlider = factory.getSlider("y", 0, 0, 720);
-        zSlider = factory.getSlider("z", 0, 0, 30);
+        xSlider = factory.getSlider("xSlider", 0, 0, 1280);
+        ySlider = factory.getSlider("ySlider", 0, 0, 720);
+        zSlider = factory.getSlider("zSlider", 0, 0, 30);
 
         addRequirements(piSubsystem);
     }
