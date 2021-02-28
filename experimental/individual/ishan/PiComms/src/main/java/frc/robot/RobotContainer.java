@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OIConstants;
 
 import frc.robot.commands.PiCommand;
+import frc.robot.commands.RandomDriveCommand;
 import frc.robot.commands.DriveCommand;
 
 import frc.robot.subsystems.Factory;
@@ -36,6 +37,8 @@ public class RobotContainer {
     private final PiCommand piCommand;
     private final DriveCommand driveCommand;
 
+    // private final RandomDriveCommand randomDriveCommand;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -47,9 +50,14 @@ public class RobotContainer {
 
         piCommand = new PiCommand(factory, piSubsystem);
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
+        // randomDriveCommand = new RandomDriveCommand(driveSubsystem, piSubsystem);
+
+        // randomDriveCommand.schedule();
 
         piSubsystem.setDefaultCommand(piCommand);
         driveSubsystem.setDefaultCommand(driveCommand);
+
+        // System.out.println(randomDriveCommand.isScheduled());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -62,6 +70,7 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        new JoystickButton(joystick, 1).whenPressed(new RandomDriveCommand(driveSubsystem, piSubsystem, factory));
     }
 
     /**

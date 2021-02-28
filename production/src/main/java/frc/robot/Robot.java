@@ -7,15 +7,9 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
-import com.analog.adis16470.frc.ADIS16470_IMU;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,23 +23,6 @@ public class Robot extends TimedRobot {
 
     private RobotContainer robotContainer;
 
-    private DriveSubsystem driveSubsystem;
-    private ADIS16470_IMU imu;
-    private WPI_TalonSRX leftTalon;
-    private WPI_TalonSRX rightTalon;
-
-    private ArrayList<Double> imuAngle;
-    private ArrayList<Double> imuRate;
-
-    private ArrayList<Double> imuXAccel;
-    private ArrayList<Double> imuYAccel;
-    private ArrayList<Double> imuZAccel;
-
-    private ArrayList<Double> lEncPos;
-    private ArrayList<Double> lEncVel;
-    private ArrayList<Double> rEncPos;
-    private ArrayList<Double> rEncVel;
-
     /**
      * This function is run when the robot is first started up and should be used
      * for any initialization code.
@@ -55,23 +32,6 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
-
-        driveSubsystem = robotContainer.getDriveSubsystem();
-        imu = driveSubsystem.getIMU();
-        leftTalon = driveSubsystem.getLeftTalon();
-        rightTalon = driveSubsystem.getRightTalon();
-
-        imuAngle = new ArrayList<Double>();
-        imuRate = new ArrayList<Double>();
-
-        imuXAccel = new ArrayList<Double>();
-        imuYAccel = new ArrayList<Double>();
-        imuZAccel = new ArrayList<Double>();
-
-        lEncPos = new ArrayList<Double>();
-        lEncVel = new ArrayList<Double>();
-        rEncPos = new ArrayList<Double>();
-        rEncVel = new ArrayList<Double>();
     }
 
     /**
@@ -99,7 +59,6 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         System.out.println("disabled");
-        SaveData.writeData(imuAngle, imuRate, imuXAccel, imuYAccel, imuZAccel, lEncPos, lEncVel, rEncPos, rEncVel);
     }
 
     @Override
@@ -137,18 +96,6 @@ public class Robot extends TimedRobot {
             autonomousCommand.cancel();
         }
 
-        imuAngle.add(0.0);
-        imuRate.add(0.0);
-
-        imuXAccel.add(0.0);
-        imuYAccel.add(0.0);
-        imuZAccel.add(0.0);
-
-        lEncPos.add(0.0);
-        lEncVel.add(0.0);
-        rEncPos.add(0.0);
-        rEncVel.add(0.0);
-
         robotContainer.scheduleDefaultCommands();
     }
 
@@ -157,19 +104,6 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
-
-        imuAngle.add(imu.getAngle());
-        imuRate.add(imu.getRate());
-
-        imuXAccel.add(imu.getAccelInstantX());
-        imuYAccel.add(imu.getAccelInstantY());
-        imuZAccel.add(imu.getAccelInstantZ());
-
-        lEncPos.add(leftTalon.getSelectedSensorPosition());
-        lEncVel.add(leftTalon.getSelectedSensorVelocity());
-        rEncPos.add(rightTalon.getSelectedSensorPosition());
-        rEncVel.add(rightTalon.getSelectedSensorVelocity());
-
     }
 
     @Override
