@@ -102,7 +102,7 @@ public class ShooterSubsystem extends SubsystemBase {
         sliders[2] = f.getSlider("D", 0.0, 0.0, 1.0);
         sliders[3] = f.getSlider("IZone", 0.0, 0.0, 1.0);
         sliders[4] = f.getSlider("FF", 0.0, 0.0, 1.0);
-        rpmInfo = f.getInfo("Current RPM", 0.0);
+        rpmInfo = f.getDial("Current RPM", 0.0);
         usePID = true;
         leftEncoder = leftSide.getEncoder();
         pidController = leftSide.getPIDController();

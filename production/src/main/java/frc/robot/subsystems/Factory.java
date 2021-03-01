@@ -54,7 +54,7 @@ public class Factory {
         return new Slider(name, defaultValue, min, max, x, y, w, h);
     }
 
-    public Dial getInfo(String name, double defaultValue) {
+    public Dial getDial(String name, double defaultValue) {
         return new Dial(name, defaultValue);
     }
 
