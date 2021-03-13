@@ -36,6 +36,9 @@ public class Factory {
     }
 
     public Slider getSlider(String name, double defaultValue) {
+        if (Slider.cache.containsKey(name)) {
+            return Slider.cache.get(name);
+        }
         return new Slider(name, defaultValue);
     }
 
@@ -47,10 +50,16 @@ public class Factory {
     }
 
     public Slider getSlider(String name, double defaultValue, int x, int y, int w, int h) {
+        if (Slider.cache.containsKey(name)) {
+            return Slider.cache.get(name);
+        }
         return new Slider(name, defaultValue, x, y, w, h);
     }
 
     public Slider getSlider(String name, double defaultValue, double min, double max, int x, int y, int w, int h) {
+        if (Slider.cache.containsKey(name)) {
+            return Slider.cache.get(name);
+        }
         return new Slider(name, defaultValue, min, max, x, y, w, h);
     }
 

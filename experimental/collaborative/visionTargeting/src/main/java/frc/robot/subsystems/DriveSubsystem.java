@@ -67,7 +67,8 @@ public class DriveSubsystem extends SubsystemBase {
                 Constants.TIMEOUT_MS);
 
         imu = new ADIS16470_IMU();
-        imu.setYawAxis(IMUAxis.kZ);
+        imu.setYawAxis(IMUAxis.kY);
+        imu.calibrate();
     }
 
     public void drive(double xSpeed, double rot) {
@@ -96,6 +97,22 @@ public class DriveSubsystem extends SubsystemBase {
         return rightC;
     }
 
+    public double getLeftVelocity() {
+        return leftC.getSelectedSensorVelocity();
+    }
+
+    public double getLeftPosition() {
+        return leftC.getSelectedSensorPosition();
+    }
+
+    public double getRightVelocity() {
+        return rightC.getSelectedSensorVelocity();
+    }
+
+    public double getRightPosition() {
+        return rightC.getSelectedSensorPosition();
+    }
+
     @Override
     public void periodic() {
         if (curvatureDrive) {
@@ -105,8 +122,10 @@ public class DriveSubsystem extends SubsystemBase {
         }
 
         imuEntry.setNumber(imu.getAngle());
-        leftEncoderEntry.setNumber(leftC.getSelectedSensorVelocity());
-        rightEncoderEntry.setNumber(rightC.getSelectedSensorVelocity());
+        // leftEncoderEntry.setNumber(getLeftVelocity());
+        // rightEncoderEntry.setNumber(getRightVelocity());
+        leftEncoderEntry.setNumber(getRightPosition());
+        rightEncoderEntry.setNumber(getRightPosition());
         reverseDrive = reverseDriveButton.get();
         curvatureDrive = curvatureDriveButton.get();
     }

@@ -65,6 +65,8 @@ public final class Constants {
         public static final int FEEDER_BUTTON = 6;
         public static final int SHOOTER_SOLENOID_EXTEND_BUTTON = 7;
         public static final int SHOOTER_SOLENOID_RETRACT_BUTTON = 8;
+        public static final int AUTONOMOUS_TARGETING_BUTTON = 9;
+        public static final int STOP_TARGETING_BUTTON = 10;
     }
 
     public static final int TIMEOUT_MS = 0;

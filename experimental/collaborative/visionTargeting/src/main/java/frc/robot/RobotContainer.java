@@ -16,12 +16,13 @@ import frc.robot.commands.PiCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShooterCommand;
-
+import frc.robot.commands.TargetingCommand;
 import frc.robot.subsystems.Factory;
 import frc.robot.subsystems.PiSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TargetingSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -39,6 +40,7 @@ public class RobotContainer {
     private final DriveSubsystem driveSubsystem;
     private final IntakeSubsystem intakeSubsystem;
     private final ShooterSubsystem shooterSubsystem;
+    private final TargetingSubsystem targetingSubsystem;
 
     private final PiCommand piCommand;
     private final DriveCommand driveCommand;
@@ -55,6 +57,7 @@ public class RobotContainer {
         driveSubsystem = new DriveSubsystem(factory);
         intakeSubsystem = new IntakeSubsystem(factory);
         shooterSubsystem = new ShooterSubsystem(factory);
+        targetingSubsystem = new TargetingSubsystem(factory);
 
         piCommand = new PiCommand(factory, piSubsystem);
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
@@ -65,6 +68,10 @@ public class RobotContainer {
         driveSubsystem.setDefaultCommand(driveCommand);
         intakeSubsystem.setDefaultCommand(intakeCommand);
         shooterSubsystem.setDefaultCommand(shooterCommand);
+
+        driveCommand.schedule();
+        intakeCommand.schedule();
+        shooterCommand.schedule();
 
         // Configure the button bindings
         configureButtonBindings();
@@ -97,6 +104,10 @@ public class RobotContainer {
                 .whenPressed(() -> shooterCommand.toggleSolenoid(1));
         new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_RETRACT_BUTTON)
                 .whenPressed(() -> shooterCommand.toggleSolenoid(-1));
+        new JoystickButton(joystick, OIConstants.AUTONOMOUS_TARGETING_BUTTON)
+                .whenPressed(new TargetingCommand(factory, driveSubsystem, targetingSubsystem, piSubsystem));
+        new JoystickButton(joystick, OIConstants.STOP_TARGETING_BUTTON)
+                .whenPressed(() -> TargetingCommand.tripped = true);
     }
 
     /**

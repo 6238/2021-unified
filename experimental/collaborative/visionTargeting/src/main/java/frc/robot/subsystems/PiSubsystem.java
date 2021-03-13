@@ -26,9 +26,9 @@ public class PiSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        xEntry.getDouble(x);
-        yEntry.getDouble(y);
-        zEntry.getDouble(z);
+        x = xEntry.getDouble(x);
+        y = yEntry.getDouble(y);
+        z = zEntry.getDouble(z);
     }
 
     public double getX() {
