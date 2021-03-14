@@ -19,7 +19,7 @@ public class TargetingSubsystem extends SubsystemBase {
   private final double yCenter;
 
   /** Creates a new TargetingSubsystem. */
-  public TargetingSubsystem(Factory f) {
+  public TargetingSubsystem() {
     speed = 0.0;
 
     xCenter = 0.5;
