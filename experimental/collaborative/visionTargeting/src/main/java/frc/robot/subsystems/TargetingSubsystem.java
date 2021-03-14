@@ -56,7 +56,7 @@ public class TargetingSubsystem extends SubsystemBase {
   }
 
   public boolean isCentered(double x, double y){
-    if(this.x == xCenter && this.y == yCenter){
+    if(x == xCenter && y == yCenter){
       return true;
     }
     return false;

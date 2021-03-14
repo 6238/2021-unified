@@ -16,8 +16,8 @@ public class TargetingCommand extends CommandBase {
     private final TargetingSubsystem targetingSubsystem;
     private final PiSubsystem piSubsystem;
 
-    private double x;
-    private double y;
+    private double x = 0.5;
+    private double y = 0.6;
     private double z;
 
     private final Slider absSpeed;
@@ -40,9 +40,9 @@ public class TargetingCommand extends CommandBase {
         y = piSubsystem.getY();
         z = piSubsystem.getZ();
 
-        rotMagnitudeSlider = f.getSlider("rotation magnitude", 0.0, 0.5, 1.0);
+        rotMagnitudeSlider = f.getSlider("rotation magnitude", 0.0, 0.0, 1.0);
 
-        absSpeed = f.getSlider("absSpeed", 0.0, 0.5, 1.0);
+        absSpeed = f.getSlider("absSpeed", 0.0, 0.0, 1.0);
         speed = targetingSubsystem.getSpeed(y, absSpeed.getDouble());
 
         addRequirements(driveSubsystem, targetingSubsystem);
@@ -52,32 +52,38 @@ public class TargetingCommand extends CommandBase {
     @Override
     public void initialize() {
         tripped = false;
+        System.out.println("Hello World");
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        System.out.println("Execute");
         speed = targetingSubsystem.getSpeed(y, absSpeed.getDouble());
-        if (targetingSubsystem.getAngle(x) == 0) {
+        if(targetingSubsystem.getAngle(x) == 0) {
             rot = 0.0;
-        } else if (targetingSubsystem.getAngle(x) > 0) {
+        }else if(targetingSubsystem.getAngle(x) > 0) {
             rot = rotMagnitudeSlider.getDouble();
-        } else {
+        }else{
             rot = -rotMagnitudeSlider.getDouble();
         }
-        driveSubsystem.drive(speed, rot);
-
+        if(!tripped){
+            driveSubsystem.drive(speed, rot);
+            System.out.println("not tripped");
+        }    
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-
+        System.out.println("end");
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
+        System.out.println("tripped?: " + tripped);
+        System.out.println("centered?: " + targetingSubsystem.isCentered(x, y));
         return (tripped || targetingSubsystem.isCentered(x, y));
     }
 }
