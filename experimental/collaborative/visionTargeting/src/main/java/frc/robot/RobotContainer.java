@@ -57,7 +57,7 @@ public class RobotContainer {
         driveSubsystem = new DriveSubsystem(factory);
         intakeSubsystem = new IntakeSubsystem(factory);
         shooterSubsystem = new ShooterSubsystem(factory);
-        targetingSubsystem = new TargetingSubsystem(factory);
+        targetingSubsystem = new TargetingSubsystem();
 
         piCommand = new PiCommand(factory, piSubsystem);
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);

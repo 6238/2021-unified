@@ -52,38 +52,36 @@ public class TargetingCommand extends CommandBase {
     @Override
     public void initialize() {
         tripped = false;
-        System.out.println("Hello World");
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        System.out.println("Execute");
+
+        x = piSubsystem.getX();
+        y = piSubsystem.getY();
+        z = piSubsystem.getZ();
+
         speed = targetingSubsystem.getSpeed(y, absSpeed.getDouble());
-        if(targetingSubsystem.getAngle(x) == 0) {
+        if (targetingSubsystem.getAngle(x) == 0) {
             rot = 0.0;
-        }else if(targetingSubsystem.getAngle(x) > 0) {
+        } else if (targetingSubsystem.getAngle(x) > 0) {
             rot = rotMagnitudeSlider.getDouble();
-        }else{
+        } else {
             rot = -rotMagnitudeSlider.getDouble();
         }
-        if(!tripped){
+        if (!tripped) {
             driveSubsystem.drive(speed, rot);
-            System.out.println("not tripped");
-        }    
+        }
     }
 
     // Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {
-        System.out.println("end");
-    }
+    public void end(boolean interrupted) {}
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        System.out.println("tripped?: " + tripped);
-        System.out.println("centered?: " + targetingSubsystem.isCentered(x, y));
-        return (tripped || targetingSubsystem.isCentered(x, y));
+        return tripped || targetingSubsystem.isCentered(x, y);
     }
 }

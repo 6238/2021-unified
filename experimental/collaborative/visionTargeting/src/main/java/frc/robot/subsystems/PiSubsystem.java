@@ -32,14 +32,14 @@ public class PiSubsystem extends SubsystemBase {
     }
 
     public double getX() {
-        return x;
+        return x/1280;
     }
 
     public double getY() {
-        return y;
+        return y/720;
     }
 
     public double getZ() {
-        return z;
+        return z/30;
     }
 }
