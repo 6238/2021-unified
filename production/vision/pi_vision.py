@@ -380,3 +380,8 @@ if __name__ == "__main__":
             )
 
         outputStream.putFrame(frame)
+
+        table.putNumber('x', centroid[0])
+        table.putNumber('y', centroid[1])
+        table.putNumber('z', depth_ft)
+        table.putNumber('fps', int(fps))
