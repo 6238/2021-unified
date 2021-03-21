@@ -160,11 +160,12 @@ def readConfig():
 
     return True
 
-
+camNum = 0
 def startCamera(config):
     """Start running the camera."""
     global cvSink
     global outputStream
+    global camNum
 
     print("Starting camera '{}' on {}".format(config.name, config.path))
     inst = CameraServer.getInstance()
@@ -181,7 +182,8 @@ def startCamera(config):
     cvSink = inst.getVideo()
 
     # (optional) Setup a CvSource. This will send images back to the Dashboard
-    outputStream = inst.putVideo("image", width, height)
+    camNum += 1
+    outputStream = inst.putVideo(f"image{camNum}", width, height)
 
     return camera
 
@@ -380,7 +382,7 @@ if __name__ == "__main__":
 
         outputStream.putFrame(frame)
 
-        table.putNumber('x', centroid[0])
-        table.putNumber('y', centroid[1])
-        table.putNumber('z', depth_ft)
+        table.putNumber('x', float(centroid[0][0]))
+        table.putNumber('y', float(centroid[0][1]))
+        table.putNumber('z', float(depth_ft))
         table.putNumber('fps', int(fps))
