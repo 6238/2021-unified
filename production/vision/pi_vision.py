@@ -12,7 +12,6 @@ from depth_prediction import DepthPredModel
 
 from networktables import NetworkTablesInstance
 
-import ntcore
 from cscore import CameraServer, MjpegServer, UsbCamera, VideoSource
 
 #   JSON format:
