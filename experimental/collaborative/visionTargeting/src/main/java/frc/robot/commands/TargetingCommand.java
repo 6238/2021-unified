@@ -18,13 +18,15 @@ public class TargetingCommand extends CommandBase {
 
     private double x = 0.5;
     private double y = 0.6;
-    private double z;
+    private double z; //to be used later
 
-    private final Slider absSpeed;
-    private double speed;
+    private final Slider speedSlider;
+    private double velocity;
 
     private final Slider rotMagnitudeSlider;
     private double rot;
+
+    private final Slider marginSlider;
 
     public static boolean tripped = false;
 
@@ -42,8 +44,10 @@ public class TargetingCommand extends CommandBase {
 
         rotMagnitudeSlider = f.getSlider("rotation magnitude", 0.0, 0.0, 1.0);
 
-        absSpeed = f.getSlider("absSpeed", 0.0, 0.0, 1.0);
-        speed = targetingSubsystem.getSpeed(y, absSpeed.getDouble());
+        speedSlider = f.getSlider("speed", 0.0, 0.0, 1.0); //adjust magnitude of speed
+        velocity = targetingSubsystem.getVelocity(y, speedSlider.getDouble());
+
+        marginSlider = f.getSlider("margin of error", 0.0, 0.0, 1.0);
 
         addRequirements(driveSubsystem, targetingSubsystem);
     }
@@ -62,16 +66,18 @@ public class TargetingCommand extends CommandBase {
         y = piSubsystem.getY();
         z = piSubsystem.getZ();
 
-        speed = targetingSubsystem.getSpeed(y, absSpeed.getDouble());
-        if (targetingSubsystem.getAngle(x) == 0) {
-            rot = 0.0;
-        } else if (targetingSubsystem.getAngle(x) > 0) {
-            rot = rotMagnitudeSlider.getDouble();
-        } else {
-            rot = -rotMagnitudeSlider.getDouble();
+        targetingSubsystem.updateMargin(marginSlider.getDouble());
+
+        velocity = targetingSubsystem.getVelocity(y, speedSlider.getDouble());
+        if (targetingSubsystem.getAngle(x) == 0) { //checks if x is centered 
+            rot = 0.0;  //if centered, rotational value = 0
+        } else if (targetingSubsystem.getAngle(x) > 0) { //if robot is to the right of target
+            rot = -rotMagnitudeSlider.getDouble(); //it should rotate left, so rot is neg
+        } else {                                    // /robot is left of target
+            rot = rotMagnitudeSlider.getDouble(); //should rotate right, rot is pos
         }
         if (!tripped) {
-            driveSubsystem.drive(speed, rot);
+            driveSubsystem.drive(velocity, rot);
         }
     }
 
