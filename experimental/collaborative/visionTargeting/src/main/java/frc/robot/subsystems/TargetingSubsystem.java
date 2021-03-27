@@ -6,60 +6,59 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+  //values from camera, periodically updated 
+  // x = 
+  // y = 
+  // z =   
+
 public class TargetingSubsystem extends SubsystemBase {
-  private double x;
-  private double y;
-  private double z;
-
+  
   private double angle; //horizontal angle value
-
-  private double speed;
 
   private final double xCenter; //x coordinate of center of screen
   private final double yCenter;
 
+  private double margin; //margin of error value to allow for more leeway
+
   /** Creates a new TargetingSubsystem. */
   public TargetingSubsystem() {
-    speed = 0.0;
-
-    xCenter = 0.5;
+    xCenter = 0.5; //halfway betw 0-1
     yCenter = 0.5;
-
-    //values from camera, periodically updated ?
-    x = 0; 
-    y = 0;
-    z = 0;
 
     angle = 0;
 
+    margin = 0.0;
+
   }
 
-  public double getAngle(double xValue){ //angle to be rotated
-    x = xValue;
-    if(x != xCenter){   //or if(x < (xCenter-a) || x > (xCenter+a)) where a is some value that allows for a bit more leeway
+  public double getAngle(double x){ //get angle from center
+    if(x != xCenter + margin){   //or if(x < (xCenter-a) || x > (xCenter+a)) where a is some value that allows for a bit more leeway
       angle = x - xCenter; //not sure abt angle and calculations
       return angle;
     }
     return 0.0;
   }
 
-  public double getSpeed(double yValue, double absSpeed){
-    y = yValue;
-    if(y > yCenter){ //robot is too far away 
-      speed = absSpeed;
-      return speed;
-    } else if(y < yCenter){ //robot is too close
-      speed = -absSpeed;
-      return speed;
+  /**used to determine whether velocity is positive or negative based on y position*/
+  public double getVelocity(double y, double speed){ 
+    if(y > yCenter + margin){ // if robot is too far away 
+      return speed; // velocity is positive
+    } else if(y < yCenter - margin){ //if robot is too close
+      return -speed; //velocity is negative
     }
-    return 0.0;
+    return 0.0; //robot is aligned with center so robot should stop moving forward/back
   }
 
+  /** checks if robot is centered */
   public boolean isCentered(double x, double y){
     if(x == xCenter && y == yCenter){
       return true;
     }
     return false;
+  }
+
+  public void updateMargin(double m){
+    margin = m;
   }
 
   @Override
