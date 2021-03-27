@@ -182,7 +182,7 @@ def startCamera(config):
 
     # (optional) Setup a CvSource. This will send images back to the Dashboard
     # if this is commented out, don't use outputStream.putFrame()
-    outputStream = inst.putVideo("image", width, height)
+    # outputStream = inst.putVideo("image", width, height)
 
     return camera
 
@@ -192,7 +192,7 @@ def startCamera(config):
 # zero for completely silent, 1 for just console logs, 2 for displaying frames
 CONSOLE_OUTPUT = True
 DRAW_OUTPUT = False
-RESOLUTION_SCALE = 0.25
+RESOLUTION_SCALE = 0.4
 DETECT_EVERY_N_FRAMES = 15
 
 pixel_to_dist_path = Path().cwd() / "target_points.json"
@@ -218,25 +218,21 @@ lk_params = dict(
 def get_hexagon_points(frame):
     cv2.normalize(frame, frame, 0, 255, cv2.NORM_MINMAX)
 
-    blurred = cv2.medianBlur(frame, 5)
-    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    hsv = cv2.GaussianBlur(frame, (5, 5), 0)
+    hsv = cv2.cvtColor(hsv, cv2.COLOR_BGR2HSV)
 
     lower_filter = np.array([0, 50, 0])
     upper_filter = np.array([32, 255, 255])
-
     # lower_filter = np.array([0, 0, 0])
     # upper_filter = np.array([255, 255, 255])
 
+    lower_filter = np.array([0, 50, 0])
+    upper_filter = np.array([32, 255, 255])
     color_mask = cv2.inRange(hsv, lower_filter, upper_filter)
     color_res = cv2.bitwise_and(frame, frame, mask=color_mask)
-    cv2.morphologyEx(
-        color_res, cv2.MORPH_OPEN, (5, 5), iterations=1, dst=color_res
-    )
     cv2.GaussianBlur(color_res, (3, 3), 0, dst=color_res)
 
-    smoothed = utils.smoother_edges(color_res, (7, 7), (1, 1))
-
-    gray = cv2.cvtColor(smoothed, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(color_res, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (3, 3), 0)
     _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_OTSU)
 
@@ -371,7 +367,7 @@ if __name__ == "__main__":
 
         ### Displaying ###
         if CONSOLE_OUTPUT:
-            print(f"{x}, {y}, {depth_ft} || fps:{fps}")
+            print(f"{x}, {y} || fps:{fps}")
             print("Res: ", frame.shape)
 
         if DRAW_OUTPUT:
@@ -382,7 +378,7 @@ if __name__ == "__main__":
 
             cv2.putText(
                 frame,
-                f"FPS {int(fps)}||Depth {round(depth_ft, 2)}",
+                f"FPS {int(fps)}",
                 (0, 50),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.5,
