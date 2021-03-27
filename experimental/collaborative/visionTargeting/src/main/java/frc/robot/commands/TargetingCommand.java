@@ -71,10 +71,10 @@ public class TargetingCommand extends CommandBase {
         velocity = targetingSubsystem.getVelocity(y, speedSlider.getDouble());
         if (targetingSubsystem.getAngle(x) == 0) { //checks if x is centered 
             rot = 0.0;  //if centered, rotational value = 0
-        } else if (targetingSubsystem.getAngle(x) > 0) { //if robot is to the right of target
-            rot = -rotMagnitudeSlider.getDouble(); //it should rotate left, so rot is neg
-        } else {                                    // /robot is left of target
-            rot = rotMagnitudeSlider.getDouble(); //should rotate right, rot is pos
+        } else if (targetingSubsystem.getAngle(x) > 0) { //if target is to the right of robot
+            rot = -rotMagnitudeSlider.getDouble(); //robot should rotate right, so rot is pos
+        } else {                                    // target is left of robot
+            rot = rotMagnitudeSlider.getDouble(); //should rotate left, rot is neg
         }
         if (!tripped) {
             driveSubsystem.drive(velocity, rot);

@@ -6,16 +6,12 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-  //values from camera, periodically updated 
-  // x = 
-  // y = 
-  // z =   
-
 public class TargetingSubsystem extends SubsystemBase {
   
   private double angle; //horizontal angle value
 
-  private final double xCenter; //x coordinate of center of screen
+  //coordinates for center of screen
+  private final double xCenter;
   private final double yCenter;
 
   private double margin; //margin of error value to allow for more leeway
@@ -26,9 +22,7 @@ public class TargetingSubsystem extends SubsystemBase {
     yCenter = 0.5;
 
     angle = 0;
-
     margin = 0.0;
-
   }
 
   public double getAngle(double x){ //get angle from center
