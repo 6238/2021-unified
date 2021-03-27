@@ -6,8 +6,12 @@ import numpy as np
 from img_utils import DisplayUtils, GeneralUtils, ShapeDetector
 from depth_prediction import DepthPredModel
 
+width = 1280
+height = 720
+
 # zero for completely silent, 1 for just console logs, 2 for displaying frames
-VERBOSE_LEVEL = 2
+CONSOLE_OUTPUT = True
+DRAW_OUTPUT = True
 RESOLUTION_SCALE = 1
 DETECT_EVERY_N_FRAMES = 15
 
@@ -41,7 +45,9 @@ def get_hexagon_points(frame):
     upper_filter = np.array([32, 255, 255])
     color_mask = cv2.inRange(hsv, lower_filter, upper_filter)
     color_res = cv2.bitwise_and(frame, frame, mask=color_mask)
-    cv2.morphologyEx(color_res, cv2.MORPH_OPEN, (5, 5), iterations=1, dst=color_res)
+    cv2.morphologyEx(
+        color_res, cv2.MORPH_OPEN, (5, 5), iterations=1, dst=color_res
+    )
     cv2.GaussianBlur(color_res, (3, 3), 0, dst=color_res)
 
     smoothed = utils.smoother_edges(color_res, (7, 7), (1, 1))
@@ -56,7 +62,9 @@ def get_hexagon_points(frame):
     upper_thresh = int(min(255, (1.0 + sigma) * median))
     canny = cv2.Canny(thresh, lower_thresh, upper_thresh)
 
-    contours, _ = cv2.findContours(canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(
+        canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
     contours = utils.filter_contours_area(contours, 1000)
 
     hexagons = shape_detector.get_contours_of_shape(contours, 6)
@@ -74,7 +82,7 @@ def get_hexagon_points(frame):
     return hexagon
 
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Cannot open video/camera")
     exit()
@@ -118,7 +126,8 @@ while True:
             no_target = False
             good_new = hexagon
             depth_ft = (
-                depth_model.predict_contour(hexagon, RESOLUTION_SCALE) * 0.00328084
+                depth_model.predict_contour(hexagon, RESOLUTION_SCALE)
+                * 0.00328084
             )
         # else, set no_target to True
         else:
@@ -143,11 +152,17 @@ while True:
 
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
 
-    ### Displaying ###
-    if VERBOSE_LEVEL >= 1:
-        print(f"{centroid}, {depth_ft} || fps:{fps}")
+    x = float(centroid[0][0] / width)
+    y = float(centroid[0][1] / height)
+    z = float(depth_ft)
+    fps = round(fps, 2)
 
-    if VERBOSE_LEVEL == 2:
+    ### Displaying ###
+    if CONSOLE_OUTPUT:
+        print(f"{x}, {y}, {depth_ft} || fps:{fps}")
+        print("Res: ", frame.shape)
+
+    if DRAW_OUTPUT:
         display_utils.draw_circles(
             frame, good_new.reshape((-1, 2)), radius=3, color=(255, 0, 0)
         )

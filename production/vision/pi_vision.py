@@ -12,7 +12,6 @@ from depth_prediction import DepthPredModel
 
 from networktables import NetworkTablesInstance
 
-import ntcore
 from cscore import CameraServer, MjpegServer, UsbCamera, VideoSource
 
 #   JSON format:
@@ -72,8 +71,8 @@ cameras = []
 cvSink = None
 outputStream = None
 
-height = 1080
-width = 1920
+width = 1280
+height = 720
 
 frame = np.zeros(
     shape=(height, width, 3), dtype=np.uint8
@@ -182,7 +181,8 @@ def startCamera(config):
     cvSink = inst.getVideo()
 
     # (optional) Setup a CvSource. This will send images back to the Dashboard
-    outputStream = inst.putVideo("image", width, height)
+    # if this is commented out, don't use outputStream.putFrame()
+    # outputStream = inst.putVideo("image", width, height)
 
     return camera
 
@@ -190,8 +190,9 @@ def startCamera(config):
 ########## CV2 Vision Setup ##########
 
 # zero for completely silent, 1 for just console logs, 2 for displaying frames
-VERBOSE_LEVEL = 2
-RESOLUTION_SCALE = 1
+CONSOLE_OUTPUT = True
+DRAW_OUTPUT = False
+RESOLUTION_SCALE = 0.25
 DETECT_EVERY_N_FRAMES = 15
 
 pixel_to_dist_path = Path().cwd() / "target_points.json"
@@ -222,6 +223,10 @@ def get_hexagon_points(frame):
 
     lower_filter = np.array([0, 50, 0])
     upper_filter = np.array([32, 255, 255])
+
+    # lower_filter = np.array([0, 0, 0])
+    # upper_filter = np.array([255, 255, 255])
+
     color_mask = cv2.inRange(hsv, lower_filter, upper_filter)
     color_res = cv2.bitwise_and(frame, frame, mask=color_mask)
     cv2.morphologyEx(
@@ -359,11 +364,17 @@ if __name__ == "__main__":
 
         fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
 
-        ### Displaying ###
-        if VERBOSE_LEVEL >= 1:
-            print(f"{centroid}, {depth_ft} || fps:{fps}")
+        x = float(centroid[0][0] / width)
+        y = float(centroid[0][1] / height)
+        z = float(depth_ft)
+        fps = round(fps, 2)
 
-        if VERBOSE_LEVEL == 2:
+        ### Displaying ###
+        if CONSOLE_OUTPUT:
+            print(f"{x}, {y}, {depth_ft} || fps:{fps}")
+            print("Res: ", frame.shape)
+
+        if DRAW_OUTPUT:
             display_utils.draw_circles(
                 frame, good_new.reshape((-1, 2)), radius=3, color=(255, 0, 0)
             )
@@ -379,9 +390,14 @@ if __name__ == "__main__":
                 2,
             )
 
-        outputStream.putFrame(frame)
+        # testing:
+        #        cv2.putText(frame, "test", (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 20, (255, 0, 0), 5)
+        #        frame = np.zeros_like(frame)
+        #        print(frame.shape)
 
-        table.putNumber('x', centroid[0])
-        table.putNumber('y', centroid[1])
-        table.putNumber('z', depth_ft)
-        table.putNumber('fps', int(fps))
+        # outputStream.putFrame(frame)
+
+        table.putNumber("x", x)
+        table.putNumber("y", y)
+        table.putNumber("z", z)
+        table.putNumber("fps", fps)
