@@ -182,7 +182,7 @@ def startCamera(config):
 
     # (optional) Setup a CvSource. This will send images back to the Dashboard
     # if this is commented out, don't use outputStream.putFrame()
-    # outputStream = inst.putVideo("image", width, height)
+    outputStream = inst.putVideo("image", width, height)
 
     return camera
 
