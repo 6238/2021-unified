@@ -63,16 +63,17 @@ public class TargetingCommand extends CommandBase {
         z = piSubsystem.getZ();
 
         speed = targetingSubsystem.getSpeed(y, absSpeed.getDouble());
-        if (targetingSubsystem.getAngle(x) == 0) {
+        
+        if (targetingSubsystem.getAngle(x) == 0) 
             rot = 0.0;
-        } else if (targetingSubsystem.getAngle(x) > 0) {
-            rot = rotMagnitudeSlider.getDouble();
-        } else {
-            rot = -rotMagnitudeSlider.getDouble();
-        }
-        if (!tripped) {
+
+        double angle = targetingSubsystem.getAngle(x);
+        rot = rotMagnitudeSlider.getDouble();
+        //If angle is less than 0, set to -rot, else set to rot 
+        rot = angle < 0 ? -rot : rot; 
+
+        if (!tripped) 
             driveSubsystem.drive(speed, rot);
-        }
     }
 
     // Called once the command ends or is interrupted.

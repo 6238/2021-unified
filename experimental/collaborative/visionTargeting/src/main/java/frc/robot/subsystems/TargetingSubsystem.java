@@ -5,25 +5,30 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.TargetConstants;
 
 public class TargetingSubsystem extends SubsystemBase {
   private double x;
   private double y;
   private double z;
 
+  
+
   private double angle; //horizontal angle value
 
   private double speed;
 
-  private final double xCenter; //x coordinate of center of screen
-  private final double yCenter;
+  private final double xCenter ; //x coordinate of center of screen
+  private final double yCenter; //y coordinate of center of screen
+  private final double pixelError; //Margin of Error for pixel
 
   /** Creates a new TargetingSubsystem. */
   public TargetingSubsystem() {
     speed = 0.0;
 
-    xCenter = 0.5;
-    yCenter = 0.5;
+    this.xCenter = TargetConstants.xCenter;
+    this.yCenter = TargetConstants.yCenter;
+    this.pixelError = TargetConstants.pixelError; 
 
     //values from camera, periodically updated ?
     x = 0; 
@@ -36,30 +41,31 @@ public class TargetingSubsystem extends SubsystemBase {
 
   public double getAngle(double xValue){ //angle to be rotated
     x = xValue;
-    if(x != xCenter){   //or if(x < (xCenter-a) || x > (xCenter+a)) where a is some value that allows for a bit more leeway
-      angle = x - xCenter; //not sure abt angle and calculations
-      return angle;
-    }
+
+    if ((x-pixelError) > xCenter) 
+      return 1; 
+    
+    else if ((x+pixelError) < xCenter) 
+      return -1; 
+
     return 0.0;
   }
 
   public double getSpeed(double yValue, double absSpeed){
     y = yValue;
-    if(y > yCenter){ //robot is too far away 
-      speed = absSpeed;
-      return speed;
-    } else if(y < yCenter){ //robot is too close
+    if(yCenter < (y-pixelError)){ //robot is too far away 
       speed = -absSpeed;
+      return speed;
+    } else if(yCenter > (y+pixelError)){ //robot is too close
+      speed = absSpeed;
       return speed;
     }
     return 0.0;
   }
 
   public boolean isCentered(double x, double y){
-    if(x == xCenter && y == yCenter){
-      return true;
-    }
-    return false;
+    return (xCenter < (x+pixelError) && xCenter > (x-pixelError)) && 
+           (yCenter < (y+pixelError) && yCenter > (y-pixelError));
   }
 
   @Override
