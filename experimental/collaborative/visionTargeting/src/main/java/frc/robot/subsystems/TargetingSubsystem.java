@@ -12,8 +12,8 @@ public class TargetingSubsystem extends SubsystemBase {
   private double y;
   private double z;
 
-  
 
+  
   private double angle; //horizontal angle value
 
   private double speed;
