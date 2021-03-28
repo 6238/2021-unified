@@ -69,6 +69,11 @@ public final class Constants {
         public static final int STOP_TARGETING_BUTTON = 10;
     }
 
+    public static final class TargetConstants {
+        public static final double xCenter = 0.5;
+        public static final double yCenter = 0.5; 
+        public static final double pixelError = 0.05; 
+    }
     public static final int TIMEOUT_MS = 0;
     public static final int PID_LOOP_IDX = 0;
 }

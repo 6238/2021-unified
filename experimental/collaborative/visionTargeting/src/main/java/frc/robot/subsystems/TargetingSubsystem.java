@@ -5,54 +5,44 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.TargetConstants;
 
 public class TargetingSubsystem extends SubsystemBase {
-  
-  private double angle; //horizontal angle value
-
-  //coordinates for center of screen
-  private final double xCenter;
-  private final double yCenter;
-
-  private double margin; //margin of error value to allow for more leeway
+  private final double xCenter ; //x coordinate of center of screen
+  private final double yCenter; //y coordinate of center of screen
+  private final double pixelError; //Margin of Error for pixel
 
   /** Creates a new TargetingSubsystem. */
   public TargetingSubsystem() {
-    xCenter = 0.5; //halfway betw 0-1
-    yCenter = 0.5;
-
-    angle = 0;
-    margin = 0.0;
-  }
-
-  public double getAngle(double x){ //get angle from center
-    if(x != xCenter + margin){   //or if(x < (xCenter-a) || x > (xCenter+a)) where a is some value that allows for a bit more leeway
-      angle = x - xCenter; //not sure abt angle and calculations
-      return angle;
-    }
-    return 0.0;
+    this.xCenter = TargetConstants.xCenter;
+    this.yCenter = TargetConstants.yCenter;
+    this.pixelError = TargetConstants.pixelError; 
   }
 
   /**used to determine whether velocity is positive or negative based on y position*/
   public double getVelocity(double y, double speed){ 
-    if(y > yCenter + margin){ // if robot is too far away 
-      return speed; // velocity is positive
-    } else if(y < yCenter - margin){ //if robot is too close
-      return -speed; //velocity is negative
+    if(y > (yCenter + pixelError)){ // if robot is too close
+      return -speed; // velocity is neg
+    } else if(y < (yCenter - pixelError)){ //if robot is too far away
+      return speed; //velocity is pos
     }
     return 0.0; //robot is aligned with center so robot should stop moving forward/back
   }
 
-  /** checks if robot is centered */
-  public boolean isCentered(double x, double y){
-    if(x == xCenter && y == yCenter){
-      return true;
-    }
-    return false;
+  public double getAngle(double x){ //angle to be rotated
+    if ((x-pixelError) > xCenter) 
+      return 1; 
+    
+    else if ((x+pixelError) < xCenter) 
+      return -1; 
+
+    return 0.0;
   }
 
-  public void updateMargin(double m){
-    margin = m;
+  /** checks if robot is centered */
+  public boolean isCentered(double x, double y){
+    return (xCenter < (x+pixelError) && xCenter > (x-pixelError)) && 
+           (yCenter < (y+pixelError) && yCenter > (y-pixelError));
   }
 
   @Override

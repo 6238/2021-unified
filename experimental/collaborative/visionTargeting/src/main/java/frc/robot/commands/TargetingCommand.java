@@ -26,8 +26,6 @@ public class TargetingCommand extends CommandBase {
     private final Slider rotMagnitudeSlider;
     private double rot;
 
-    private final Slider marginSlider;
-
     public static boolean tripped = false;
 
     /** Creates a new TargetingCommand. */
@@ -47,8 +45,6 @@ public class TargetingCommand extends CommandBase {
         speedSlider = f.getSlider("speed", 0.0, 0.0, 1.0); //adjust magnitude of speed
         velocity = targetingSubsystem.getVelocity(y, speedSlider.getDouble());
 
-        marginSlider = f.getSlider("margin of error", 0.0, 0.0, 1.0);
-
         addRequirements(driveSubsystem, targetingSubsystem);
     }
 
@@ -66,16 +62,17 @@ public class TargetingCommand extends CommandBase {
         y = piSubsystem.getY();
         z = piSubsystem.getZ();
 
-        targetingSubsystem.updateMargin(marginSlider.getDouble());
-
         velocity = targetingSubsystem.getVelocity(y, speedSlider.getDouble());
-        if (targetingSubsystem.getAngle(x) == 0) { //checks if x is centered 
-            rot = 0.0;  //if centered, rotational value = 0
-        } else if (targetingSubsystem.getAngle(x) > 0) { //if target is to the right of robot
-            rot = -rotMagnitudeSlider.getDouble(); //robot should rotate right, so rot is pos
-        } else {                                    // target is left of robot
-            rot = rotMagnitudeSlider.getDouble(); //should rotate left, rot is neg
+
+        double angle = targetingSubsystem.getAngle(x);
+        rot = rotMagnitudeSlider.getDouble();
+        // If angle is less than 0, set to -rot, else set to rot
+        rot = angle < 0 ? -rot : rot;
+
+        if (angle == 0) {
+            rot = 0.0;
         }
+
         if (!tripped) {
             driveSubsystem.drive(velocity, rot);
         }
@@ -83,7 +80,8 @@ public class TargetingCommand extends CommandBase {
 
     // Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+    }
 
     // Returns true when the command should end.
     @Override
