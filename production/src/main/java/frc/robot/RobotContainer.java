@@ -33,12 +33,12 @@ public class RobotContainer {
     public final Factory factory = new Factory();
     private final Joystick joystick;
     private final DriveSubsystem driveSubsystem;
-    private final IntakeSubsystem intakeSubsystem;
-    private final ShooterSubsystem shooterSubsystem;
+    // private final IntakeSubsystem intakeSubsystem;
+    // private final ShooterSubsystem shooterSubsystem;
 
     private final DriveCommand driveCommand;
-    private final IntakeCommand intakeCommand;
-    private final ShooterCommand shooterCommand;
+    // private final IntakeCommand intakeCommand;
+    // private final ShooterCommand shooterCommand;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -47,16 +47,16 @@ public class RobotContainer {
         joystick = new Joystick(OIConstants.JOYSTICK_A);
 
         driveSubsystem = new DriveSubsystem(factory);
-        intakeSubsystem = new IntakeSubsystem(factory);
-        shooterSubsystem = new ShooterSubsystem(factory);
+        // intakeSubsystem = new IntakeSubsystem(factory);
+        // shooterSubsystem = new ShooterSubsystem(factory);
 
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
-        intakeCommand = new IntakeCommand(factory, intakeSubsystem);
-        shooterCommand = new ShooterCommand(factory, shooterSubsystem/* , joystick */);
+        // intakeCommand = new IntakeCommand(factory, intakeSubsystem);
+        // shooterCommand = new ShooterCommand(factory, shooterSubsystem/* , joystick */);
 
         driveSubsystem.setDefaultCommand(driveCommand);
-        intakeSubsystem.setDefaultCommand(intakeCommand);
-        shooterSubsystem.setDefaultCommand(shooterCommand);
+        // intakeSubsystem.setDefaultCommand(intakeCommand);
+        // shooterSubsystem.setDefaultCommand(shooterCommand);
 
         // Configure the button bindings
         configureButtonBindings();
@@ -69,7 +69,7 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        new JoystickButton(joystick, OIConstants.SHOOTER_BUTTON).whenPressed(() -> shooterCommand.toggleShooter(true))
+        /* new JoystickButton(joystick, OIConstants.SHOOTER_BUTTON).whenPressed(() -> shooterCommand.toggleShooter(true))
                 .whenReleased(() -> shooterCommand.toggleShooter(false));
 
         new JoystickButton(joystick, OIConstants.ELEVATOR_BUTTON).whenPressed(() -> intakeCommand.setElevator(1))
@@ -88,17 +88,17 @@ public class RobotContainer {
         new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_EXTEND_BUTTON)
                 .whenPressed(() -> shooterCommand.toggleSolenoid(1));
         new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_RETRACT_BUTTON)
-                .whenPressed(() -> shooterCommand.toggleSolenoid(-1));
+                .whenPressed(() -> shooterCommand.toggleSolenoid(-1)); */
     }
 
     public void scheduleDefaultCommands() {
         driveSubsystem.setDefaultCommand(driveCommand);
-        intakeSubsystem.setDefaultCommand(intakeCommand);
-        shooterSubsystem.setDefaultCommand(shooterCommand);
+        // intakeSubsystem.setDefaultCommand(intakeCommand);
+        // shooterSubsystem.setDefaultCommand(shooterCommand);
 
         driveCommand.schedule();
-        intakeCommand.schedule();
-        shooterCommand.schedule();
+        // intakeCommand.schedule();
+        // shooterCommand.schedule();
     }
 
     /**

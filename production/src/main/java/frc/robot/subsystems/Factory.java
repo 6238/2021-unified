@@ -62,7 +62,8 @@ public class Factory {
         return new ToggleButton(name, defaultValue);
     }
 
-    private final Compressor compressor = new Compressor();
+    // private final Compressor compressor = new Compressor();
+    private final Compressor compressor = null;
     public Compressor getCompressor() {
         return compressor;
     }
