@@ -26,9 +26,13 @@ public final class Constants {
     public static final double SPEED_THRESHOLD = 0.1;
     public static final double ROTATE_THRESHOLD = 0.05;
 
-    public static final double MAX_SPEED = 2800;
+    public static final double MAX_SPEED = 1400;
     
-    public static final double kP = 0.00912;
-    public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kP = 0.0000084;
+    public static final double kI = 0.0042;
+    public static final double kD = 0.0000042;
+
+    public static final double kS = 1.06;
+    public static final double kV = 0.00377;
+    public static final double kA = 0.000218;
 }

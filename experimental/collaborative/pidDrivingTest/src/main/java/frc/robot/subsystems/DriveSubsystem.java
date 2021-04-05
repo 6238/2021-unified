@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.LinkedList;
+
 import com.analog.adis16470.frc.ADIS16470_IMU;
 import com.analog.adis16470.frc.ADIS16470_IMU.IMUAxis;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -12,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -37,6 +40,9 @@ public class DriveSubsystem extends SubsystemBase {
     private final NetworkTableEntry rightEncoderEntry;
     private final DifferentialDrive differentialDrive;
 
+    private final LinkedList<Double> leftEncoderArray;
+    private final LinkedList<Double> rightEncoderArray;
+
     private boolean reverseDrive = false;
 
     public DriveSubsystem() {
@@ -53,27 +59,37 @@ public class DriveSubsystem extends SubsystemBase {
         differentialDrive = new DifferentialDrive(left, right);
 
         imuEntry = Shuffleboard.getTab("SmartDashboard").add("imu", 0).getEntry();
-        leftEncoderEntry = Shuffleboard.getTab("SmartDashboard").add("leftEncoder", 0).getEntry();
-        rightEncoderEntry = Shuffleboard.getTab("SmartDashboard").add("rightEncoder", 0).getEntry();
+        leftEncoderEntry = Shuffleboard.getTab("SmartDashboard").add("leftEncoder", 0).withWidget(BuiltInWidgets.kGraph)
+                .getEntry();
+        rightEncoderEntry = Shuffleboard.getTab("SmartDashboard").add("rightEncoder", 0)
+                .withWidget(BuiltInWidgets.kGraph).getEntry();
         reverseDriveButton = new ToggleButton("reverseDrive", reverseDrive);
 
         leftC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
         rightC.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 
+        left.setInverted(false);
+        right.setInverted(false);
+
         imu = new ADIS16470_IMU();
         imu.setYawAxis(IMUAxis.kY);
+
+        leftEncoderArray = new LinkedList<Double>();
+        rightEncoderArray = new LinkedList<Double>();
     }
 
     public void arcadeDrive(double xSpeed, double rot) {
         differentialDrive.arcadeDrive(reverseDrive ? -xSpeed : xSpeed, rot, false);
     }
 
-    public void leftDrive(double speed) {
-        left.set(speed);
+    public void leftDrive(double input) {
+        left.setVoltage(input);
+        System.out.println("left: " + input);
     }
 
-    public void rightDrive(double speed) {
-        right.set(speed);
+    public void rightDrive(double input) {
+        right.setVoltage(-input);
+        System.out.println("right: " + (-input));
     }
 
     public void setMaxSpeed(double maxSpeed) {
@@ -84,12 +100,32 @@ public class DriveSubsystem extends SubsystemBase {
         return imu;
     }
 
-    public WPI_TalonSRX getLeftTalon() {
-        return leftC;
+    public double getLeftVelocity() {
+        if (leftEncoderArray.size() >= 25) {
+            leftEncoderArray.pop();
+        }
+        leftEncoderArray.add(leftC.getSelectedSensorVelocity());
+
+        double sum = 0;
+        for (double i : leftEncoderArray) {
+            sum += i;
+        }
+
+        return sum / 25;
     }
 
-    public WPI_TalonSRX getRightTalon() {
-        return rightC;
+    public double getRightVelocity() {
+        if (rightEncoderArray.size() >= 25) {
+            rightEncoderArray.pop();
+        }
+        rightEncoderArray.add(rightC.getSelectedSensorVelocity());
+
+        double sum = 0;
+        for (double i : rightEncoderArray) {
+            sum += i;
+        }
+
+        return sum / 25;
     }
 
     public boolean getReverseDrive() {
