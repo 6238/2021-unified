@@ -13,7 +13,8 @@ package frc.robot;
  * purpose. All constants should be declared globally (i.e. public static). Do
  * not put anything functional in this class.
  *
- * <p>It is advised to statically import this class (or one of its inner classes)
+ * <p>
+ * It is advised to statically import this class (or one of its inner classes)
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
@@ -31,6 +32,19 @@ public final class Constants {
         // input thresholds
         public static final double SPEED_THRESHOLD = 0.1;
         public static final double ROTATE_THRESHOLD = 0.05;
+
+        public static final double MAX_SPEED = 1400;
+
+        /* public static final double kP = 0.0000084;
+        public static final double kI = 0.0042;
+        public static final double kD = 0.0000042; */
+        public static final double kP = 0.0001;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final double kS = 1.06;
+        public static final double kV = 0.00377;
+        public static final double kA = 0.000218;
     }
 
     public static final class ShooterConstants {
@@ -65,6 +79,8 @@ public final class Constants {
         public static final int FEEDER_BUTTON = 6;
         public static final int SHOOTER_SOLENOID_EXTEND_BUTTON = 7;
         public static final int SHOOTER_SOLENOID_RETRACT_BUTTON = 8;
+        public static final int PID_DRIVE_START_BUTTON = 11;
+        public static final int PID_DRIVE_END_BUTTON = 12;
     }
 
     public static final int TIMEOUT_MS = 0;

@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.io.Slider;
@@ -11,13 +12,15 @@ import frc.robot.subsystems.ShooterSubsystem;
 public class ShooterCommand extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
     private final Compressor compressor;
+    private final Joystick joystick;
     private ToggleButton compressorEnabledButton;
     private Slider speedSlider;
     private boolean shooterButton = false;
     private int solenoidStatus = 0;
 
-    public ShooterCommand(Factory f, ShooterSubsystem shooterSubsystem) {
+    public ShooterCommand(Factory f, ShooterSubsystem shooterSubsystem, Joystick joystick) {
         this.shooterSubsystem = shooterSubsystem;
+        this.joystick = joystick;
         compressor = shooterSubsystem.getCompressor();
         compressor.setClosedLoopControl(true);
 
@@ -29,10 +32,10 @@ public class ShooterCommand extends CommandBase {
 
     @Override
     public void execute() {
-        shooterSubsystem.setSpeed(shooterButton ? speedSlider.getDouble() : 0);
+        speedSlider.setDouble(joystick.getThrottle());
+        shooterSubsystem.setSpeed(shooterButton ? (joystick.getThrottle() + 1) / 2 : 0);
         shooterSubsystem.setSolenoidPosition(solenoidStatus);
         compressorEnabledButton.set(compressor.enabled());
-        // System.out.println(shooterSubsystem.getSpeed());
     }
 
     public void toggleShooter(boolean status) {
