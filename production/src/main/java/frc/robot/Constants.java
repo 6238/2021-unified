@@ -74,7 +74,7 @@ public final class Constants {
         public static final int JOYSTICK_A = 0;
 
         public static final int SHOOTER_BUTTON = 1;
-        public static final int THROAT_BUTTON = 2;
+        public static final int INTAKE_BUTTON = 2;
         public static final int ELEVATOR_REVERSE_BUTTON = 3;
         public static final int FEEDER_REVERSE_BUTTON = 4;
         public static final int ELEVATOR_BUTTON = 5;

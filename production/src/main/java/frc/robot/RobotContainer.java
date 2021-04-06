@@ -39,9 +39,9 @@ public class RobotContainer {
     private final ShooterSubsystem shooterSubsystem;
 
     private final DriveCommand driveCommand;
-    private final PIDDriveCommand pidDriveCommand;
     private final IntakeCommand intakeCommand;
     private final ShooterCommand shooterCommand;
+    private final PIDDriveCommand pidDriveCommand;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -54,9 +54,9 @@ public class RobotContainer {
         shooterSubsystem = new ShooterSubsystem(factory);
 
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
-        pidDriveCommand = new PIDDriveCommand(driveSubsystem, joystick);
         intakeCommand = new IntakeCommand(factory, intakeSubsystem);
         shooterCommand = new ShooterCommand(factory, shooterSubsystem);
+        pidDriveCommand = new PIDDriveCommand(driveSubsystem, joystick);
 
         driveSubsystem.setDefaultCommand(driveCommand);
         intakeSubsystem.setDefaultCommand(intakeCommand);
@@ -76,6 +76,9 @@ public class RobotContainer {
         new JoystickButton(joystick, OIConstants.SHOOTER_BUTTON).whenPressed(() -> shooterCommand.toggleShooter(true))
                 .whenReleased(() -> shooterCommand.toggleShooter(false));
 
+        new JoystickButton(joystick, OIConstants.INTAKE_BUTTON).whenPressed(() -> intakeCommand.setIntake(1))
+                .whenReleased(() -> intakeCommand.setIntake(0));
+
         new JoystickButton(joystick, OIConstants.ELEVATOR_BUTTON).whenPressed(() -> intakeCommand.setElevator(1))
                 .whenReleased(() -> intakeCommand.setElevator(0));
         new JoystickButton(joystick, OIConstants.ELEVATOR_REVERSE_BUTTON)
@@ -86,37 +89,18 @@ public class RobotContainer {
         new JoystickButton(joystick, OIConstants.FEEDER_REVERSE_BUTTON).whenPressed(() -> intakeCommand.setFeeder(-1))
                 .whenReleased(() -> intakeCommand.setFeeder(0));
 
-        new JoystickButton(joystick, OIConstants.THROAT_BUTTON).whenPressed(() -> intakeCommand.setThroat(1))
-                .whenReleased(() -> intakeCommand.setThroat(0));
-
         new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_EXTEND_BUTTON)
                 .whenPressed(() -> shooterCommand.toggleSolenoid(1));
         new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_RETRACT_BUTTON)
                 .whenPressed(() -> shooterCommand.toggleSolenoid(-1));
 
-        new DPad(joystick, OIConstants.GREEN_ZONE_POSITION)
-                .whenActive(() -> shooterCommand.setShooterSpeed(0));
-        new DPad(joystick, OIConstants.YELLOW_ZONE_POSITION)
-                .whenActive(() -> shooterCommand.setShooterSpeed(1));
-        new DPad(joystick, OIConstants.BLUE_ZONE_POSITION)
-                .whenActive(() -> shooterCommand.setShooterSpeed(2));
-        new DPad(joystick, OIConstants.RED_ZONE_POSITION)
-                .whenActive(() -> shooterCommand.setShooterSpeed(3));
+        new DPad(joystick, OIConstants.GREEN_ZONE_POSITION).whenActive(() -> shooterCommand.setShooterSpeed(0));
+        new DPad(joystick, OIConstants.YELLOW_ZONE_POSITION).whenActive(() -> shooterCommand.setShooterSpeed(1));
+        new DPad(joystick, OIConstants.BLUE_ZONE_POSITION).whenActive(() -> shooterCommand.setShooterSpeed(2));
+        new DPad(joystick, OIConstants.RED_ZONE_POSITION).whenActive(() -> shooterCommand.setShooterSpeed(3));
 
-        new JoystickButton(joystick, OIConstants.PID_DRIVE_START_BUTTON)
-        .whenPressed(() -> pidDriveCommand.schedule());
-        new JoystickButton(joystick, OIConstants.PID_DRIVE_END_BUTTON)
-        .whenPressed(() -> pidDriveCommand.schedule());
-    }
-
-    public void scheduleDefaultCommands() {
-        driveSubsystem.setDefaultCommand(driveCommand);
-        intakeSubsystem.setDefaultCommand(intakeCommand);
-        shooterSubsystem.setDefaultCommand(shooterCommand);
-
-        driveCommand.schedule();
-        intakeCommand.schedule();
-        shooterCommand.schedule();
+        new JoystickButton(joystick, OIConstants.PID_DRIVE_START_BUTTON).whenPressed(() -> pidDriveCommand.schedule());
+        new JoystickButton(joystick, OIConstants.PID_DRIVE_END_BUTTON).whenPressed(() -> pidDriveCommand.schedule());
     }
 
     /**

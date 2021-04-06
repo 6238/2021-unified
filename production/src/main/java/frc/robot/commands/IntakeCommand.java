@@ -56,7 +56,7 @@ public class IntakeCommand extends CommandBase {
     /**
      * @param status 0: off, 1: forward
      */
-    public void setThroat(int status) {
+    public void setIntake(int status) {
         setElevator(status);
         setFeeder(status);
     }
