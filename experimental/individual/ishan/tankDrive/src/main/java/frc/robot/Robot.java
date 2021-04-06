@@ -7,7 +7,6 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -29,8 +28,6 @@ public class Robot extends TimedRobot {
 
     private SpeedControllerGroup left = new SpeedControllerGroup(leftA, leftB, leftC);
     private SpeedControllerGroup right = new SpeedControllerGroup(rightA, rightB, rightC);
-
-    private 
 
     @Override
     public void robotInit() {

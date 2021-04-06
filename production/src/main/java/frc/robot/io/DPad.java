@@ -14,7 +14,7 @@ public class DPad extends Trigger {
         kDefault, kTop, kTopRight, kRight, kBottomRight, kBottom, kBottomLeft, kLeft, kTopLeft
     }
 
-    private Map<DPadPosition, Integer> positionMap = Map.ofEntries(Map.entry(DPadPosition.kDefault, 0),
+    private final Map<DPadPosition, Integer> positionMap = Map.ofEntries(Map.entry(DPadPosition.kDefault, 0),
             Map.entry(DPadPosition.kTop, 1), Map.entry(DPadPosition.kTopRight, 2), Map.entry(DPadPosition.kRight, 3),
             Map.entry(DPadPosition.kBottomRight, 4), Map.entry(DPadPosition.kBottom, 5),
             Map.entry(DPadPosition.kBottomLeft, 6), Map.entry(DPadPosition.kLeft, 7),

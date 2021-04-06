@@ -45,14 +45,14 @@ public class DriveSubsystem extends SubsystemBase {
     private boolean reverseDrive = false;
 
     public DriveSubsystem(Factory f) {
-        leftA = f.getTalonMotor(DriveConstants.DRIVE_LEFT_MOTOR_A);
-        leftB = f.getTalonMotor(DriveConstants.DRIVE_LEFT_MOTOR_B);
-        leftC = f.getTalonMotor(DriveConstants.DRIVE_LEFT_MOTOR_C);
+        leftA = f.getTalonSRX(DriveConstants.DRIVE_LEFT_MOTOR_A);
+        leftB = f.getTalonSRX(DriveConstants.DRIVE_LEFT_MOTOR_B);
+        leftC = f.getTalonSRX(DriveConstants.DRIVE_LEFT_MOTOR_C);
         left = new SpeedControllerGroup(leftA, leftB, leftC);
 
-        rightA = f.getTalonMotor(DriveConstants.DRIVE_RIGHT_MOTOR_A);
-        rightB = f.getTalonMotor(DriveConstants.DRIVE_RIGHT_MOTOR_B);
-        rightC = f.getTalonMotor(DriveConstants.DRIVE_RIGHT_MOTOR_C);
+        rightA = f.getTalonSRX(DriveConstants.DRIVE_RIGHT_MOTOR_A);
+        rightB = f.getTalonSRX(DriveConstants.DRIVE_RIGHT_MOTOR_B);
+        rightC = f.getTalonSRX(DriveConstants.DRIVE_RIGHT_MOTOR_C);
         right = new SpeedControllerGroup(rightA, rightB, rightC);
 
         differentialDrive = new DifferentialDrive(left, right);
@@ -79,7 +79,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void pidDrive(double lInput, double rInput) {
-        left.setVoltage(lInput);
+        left.setVoltage(-lInput);
         right.setVoltage(rInput);
     }
 
@@ -116,7 +116,7 @@ public class DriveSubsystem extends SubsystemBase {
             sum += i;
         }
 
-        return sum / 25;
+        return sum / 25 * 1.08;
     }
 
     @Override

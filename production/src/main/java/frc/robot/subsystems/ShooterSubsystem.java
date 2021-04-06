@@ -50,8 +50,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public ShooterSubsystem(Factory f, boolean useFollower) {
         this.useFollower = useFollower;
-        leftSide = f.getSparkMotor(ShooterConstants.SHOOTER_LEFT);
-        rightSide = f.getSparkMotor(ShooterConstants.SHOOTER_RIGHT);
+        leftSide = f.getSpark(ShooterConstants.SHOOTER_LEFT);
+        rightSide = f.getSpark(ShooterConstants.SHOOTER_RIGHT);
         solenoid = f.getDoubleSolenoid(ShooterConstants.SHOOTER_SOLENOID_FORWARD,
                 ShooterConstants.SHOOTER_SOLENOID_REVERSE);
         compressor = f.getCompressor();

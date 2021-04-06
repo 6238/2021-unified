@@ -16,6 +16,7 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.PIDDriveCommand;
 import frc.robot.commands.ShooterCommand;
+import frc.robot.io.DPad;
 import frc.robot.subsystems.Factory;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -38,7 +39,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooterSubsystem;
 
     private final DriveCommand driveCommand;
-    // private final PIDDriveCommand pidDriveCommand;
+    private final PIDDriveCommand pidDriveCommand;
     private final IntakeCommand intakeCommand;
     private final ShooterCommand shooterCommand;
 
@@ -53,9 +54,9 @@ public class RobotContainer {
         shooterSubsystem = new ShooterSubsystem(factory);
 
         driveCommand = new DriveCommand(factory, driveSubsystem, joystick);
-        // pidDriveCommand = new PIDDriveCommand(driveSubsystem, joystick);
+        pidDriveCommand = new PIDDriveCommand(driveSubsystem, joystick);
         intakeCommand = new IntakeCommand(factory, intakeSubsystem);
-        shooterCommand = new ShooterCommand(factory, shooterSubsystem, joystick);
+        shooterCommand = new ShooterCommand(factory, shooterSubsystem);
 
         driveSubsystem.setDefaultCommand(driveCommand);
         intakeSubsystem.setDefaultCommand(intakeCommand);
@@ -93,10 +94,19 @@ public class RobotContainer {
         new JoystickButton(joystick, OIConstants.SHOOTER_SOLENOID_RETRACT_BUTTON)
                 .whenPressed(() -> shooterCommand.toggleSolenoid(-1));
 
-        // new JoystickButton(joystick, OIConstants.PID_DRIVE_START_BUTTON)
-        // .whenPressed(() -> shooterCommand.toggleSolenoid(1));
-        // new JoystickButton(joystick, OIConstants.PID_DRIVE_END_BUTTON)
-        // .whenPressed(() -> shooterCommand.toggleSolenoid(-1));
+        new DPad(joystick, OIConstants.GREEN_ZONE_POSITION)
+                .whenActive(() -> shooterCommand.setShooterSpeed(0));
+        new DPad(joystick, OIConstants.YELLOW_ZONE_POSITION)
+                .whenActive(() -> shooterCommand.setShooterSpeed(1));
+        new DPad(joystick, OIConstants.BLUE_ZONE_POSITION)
+                .whenActive(() -> shooterCommand.setShooterSpeed(2));
+        new DPad(joystick, OIConstants.RED_ZONE_POSITION)
+                .whenActive(() -> shooterCommand.setShooterSpeed(3));
+
+        new JoystickButton(joystick, OIConstants.PID_DRIVE_START_BUTTON)
+        .whenPressed(() -> pidDriveCommand.schedule());
+        new JoystickButton(joystick, OIConstants.PID_DRIVE_END_BUTTON)
+        .whenPressed(() -> pidDriveCommand.schedule());
     }
 
     public void scheduleDefaultCommands() {

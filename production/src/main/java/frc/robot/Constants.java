@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import frc.robot.io.DPad.DPadPosition;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -33,14 +35,14 @@ public final class Constants {
         public static final double SPEED_THRESHOLD = 0.1;
         public static final double ROTATE_THRESHOLD = 0.05;
 
-        public static final double MAX_SPEED = 1400;
+        public static final double MAX_SPEED = 3400;
 
-        /* public static final double kP = 0.0000084;
+        public static final double kP = 0.0000084;
         public static final double kI = 0.0042;
-        public static final double kD = 0.0000042; */
-        public static final double kP = 0.0001;
+        public static final double kD = 0.0000042;
+        /* public static final double kP = 0.0001;
         public static final double kI = 0.0;
-        public static final double kD = 0.0;
+        public static final double kD = 0.0; */
 
         public static final double kS = 1.06;
         public static final double kV = 0.00377;
@@ -56,6 +58,8 @@ public final class Constants {
         public static final int SHOOTER_SOLENOID_REVERSE = 3;
 
         public static final double INITIAL_SHOOTER_SPEED = 0.5;
+
+        public static final double[] SHOOTER_SPEEDS = {1.0, 1.0, 1.0, 1.0}; // 0 is top, 1 is right, 2 is bottom, 3 is left
     }
 
     public static final class IntakeConstants {
@@ -81,6 +85,11 @@ public final class Constants {
         public static final int SHOOTER_SOLENOID_RETRACT_BUTTON = 8;
         public static final int PID_DRIVE_START_BUTTON = 11;
         public static final int PID_DRIVE_END_BUTTON = 12;
+
+        public static final DPadPosition GREEN_ZONE_POSITION = DPadPosition.kTop;
+        public static final DPadPosition YELLOW_ZONE_POSITION = DPadPosition.kRight;
+        public static final DPadPosition BLUE_ZONE_POSITION = DPadPosition.kBottom;
+        public static final DPadPosition RED_ZONE_POSITION = DPadPosition.kLeft;
     }
 
     public static final int TIMEOUT_MS = 0;

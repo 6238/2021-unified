@@ -21,6 +21,7 @@ public class PIDDriveCommand extends CommandBase {
     private final Info pInfo;
     private final Info iInfo;
     private final Info dInfo;
+    private double speed = 0;
 
     public PIDDriveCommand(DriveSubsystem driveSubsystem, Joystick joystick) {
         this.driveSubsystem = driveSubsystem;
@@ -49,8 +50,14 @@ public class PIDDriveCommand extends CommandBase {
         rightController.setI(iInfo.getDouble());
         rightController.setD(dInfo.getDouble());
 
-        double leftTarget = pidSlider.getDouble();
-        double rightTarget = pidSlider.getDouble();
+        speed = joystick.getY() * 3400;
+        pidSlider.setDouble(speed);
+        System.out.println("speed " + speed);
+
+        double leftTarget = speed;
+        // double leftTarget = pidSlider.getDouble();
+        double rightTarget = speed;
+        // double rightTarget = pidSlider.getDouble();
 
         double leftOutput = leftController.calculate(driveSubsystem.getLeftVelocity(), leftTarget);
         double rightOutput = rightController.calculate(driveSubsystem.getRightVelocity(), rightTarget);

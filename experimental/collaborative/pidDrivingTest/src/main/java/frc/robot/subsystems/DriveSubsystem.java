@@ -83,13 +83,13 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void leftDrive(double input) {
-        left.setVoltage(input);
-        System.out.println("left: " + input);
+        left.setVoltage(-input);
+        System.out.println("leftDrive: " + (-input));
     }
 
     public void rightDrive(double input) {
-        right.setVoltage(-input);
-        System.out.println("right: " + (-input));
+        right.setVoltage(input);
+        System.out.println("rightDrive: " + input);
     }
 
     public void setMaxSpeed(double maxSpeed) {
@@ -111,6 +111,7 @@ public class DriveSubsystem extends SubsystemBase {
             sum += i;
         }
 
+        System.out.println("left " + sum / 25);
         return sum / 25;
     }
 
@@ -125,7 +126,8 @@ public class DriveSubsystem extends SubsystemBase {
             sum += i;
         }
 
-        return sum / 25;
+        System.out.println("right " + sum / 25 * 1.08);
+        return sum / 25 * 1.08;
     }
 
     public boolean getReverseDrive() {
