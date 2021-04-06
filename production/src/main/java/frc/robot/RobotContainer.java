@@ -100,7 +100,7 @@ public class RobotContainer {
         new DPad(joystick, OIConstants.RED_ZONE_POSITION).whenActive(() -> shooterCommand.setShooterSpeed(3));
 
         new JoystickButton(joystick, OIConstants.PID_DRIVE_START_BUTTON).whenPressed(() -> pidDriveCommand.schedule());
-        new JoystickButton(joystick, OIConstants.PID_DRIVE_END_BUTTON).whenPressed(() -> pidDriveCommand.schedule());
+        new JoystickButton(joystick, OIConstants.PID_DRIVE_END_BUTTON).whenPressed(() -> pidDriveCommand.cancel());
     }
 
     /**
