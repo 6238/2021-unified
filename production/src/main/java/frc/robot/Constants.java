@@ -59,7 +59,7 @@ public final class Constants {
 
         public static final double INITIAL_SHOOTER_SPEED = 0.5;
 
-        public static final double[] SHOOTER_SPEEDS = {1.0, 1.0, 1.0, 1.0}; // 0 is top, 1 is right, 2 is bottom, 3 is left
+        public static final double[] SHOOTER_SPEEDS = {1.0, 0.52, 0.53, 0.57}; // 0 is top, 1 is right, 2 is bottom, 3 is left
     }
 
     public static final class IntakeConstants {
