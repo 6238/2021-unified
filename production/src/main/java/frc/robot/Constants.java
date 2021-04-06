@@ -64,8 +64,6 @@ public final class Constants {
 
     public static final class IntakeConstants {
         // motor IDs
-        // public static final int THROAT_FRONT = 9;
-        // public static final int THROAT_BACK = 10;
         public static final int ELEVATOR_FRONT = 32;
         public static final int ELEVATOR_BACK = 20;
         public static final int FEEDER = 21;
