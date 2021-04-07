@@ -34,7 +34,7 @@ public final class Constants {
         // input thresholds
         public static final double SPEED_THRESHOLD = 0.1;
         public static final double ROTATE_THRESHOLD = 0.05;
-
+ 
         public static final double MAX_SPEED = 3400;
 
         public static final double kP = 0.0000084;
@@ -60,7 +60,7 @@ public final class Constants {
 
         public static final double INITIAL_SHOOTER_SPEED = 0.5;
 
-        public static final double[] SHOOTER_SPEEDS = { 0.36, 0.56, 0.53, 0.57 }; // 0 top, 1 right, 2 bottom, 3 left
+        public static final double[] SHOOTER_SPEEDS = { 0.36, 0.522, 0.50, 0.51 }; // 0 top, 1 right, 2 bottom, 3 left
     }
 
     public static final class IntakeConstants {
