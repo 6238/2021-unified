@@ -40,9 +40,10 @@ public final class Constants {
         public static final double kP = 0.0000084;
         public static final double kI = 0.0042;
         public static final double kD = 0.0000042;
-        /* public static final double kP = 0.0001;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0; */
+        /*
+         * public static final double kP = 0.0001; public static final double kI = 0.0;
+         * public static final double kD = 0.0;
+         */
 
         public static final double kS = 1.06;
         public static final double kV = 0.00377;
@@ -59,14 +60,19 @@ public final class Constants {
 
         public static final double INITIAL_SHOOTER_SPEED = 0.5;
 
-        public static final double[] SHOOTER_SPEEDS = {1.0, 0.52, 0.53, 0.57}; // 0 is top, 1 is right, 2 is bottom, 3 is left
+        public static final double[] SHOOTER_SPEEDS = { 0.36, 0.56, 0.53, 0.57 }; // 0 top, 1 right, 2 bottom, 3 left
     }
 
     public static final class IntakeConstants {
         // motor IDs
-        public static final int ELEVATOR_FRONT = 32;
-        public static final int ELEVATOR_BACK = 20;
+        public static final int ELEVATOR_LEFT = 32;
+        public static final int ELEVATOR_RIGHT = 20;
         public static final int FEEDER = 21;
+    }
+
+    public static final class TargetConstants {
+        public static final double X_CENTER = 0.5;
+        public static final double Y_CENTER = 0.5;
     }
 
     public static final class OIConstants {
@@ -81,6 +87,8 @@ public final class Constants {
         public static final int FEEDER_BUTTON = 6;
         public static final int SHOOTER_SOLENOID_EXTEND_BUTTON = 7;
         public static final int SHOOTER_SOLENOID_RETRACT_BUTTON = 8;
+        public static final int TARGETING_START_BUTTON = 9;
+        public static final int TARGETING_END_BUTTON = 10;
         public static final int PID_DRIVE_START_BUTTON = 11;
         public static final int PID_DRIVE_END_BUTTON = 12;
 

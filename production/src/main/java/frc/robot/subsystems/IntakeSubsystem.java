@@ -15,8 +15,10 @@ public class IntakeSubsystem extends SubsystemBase {
     public IntakeSubsystem(Factory f) {
         feeder = f.getTalonSRX(IntakeConstants.FEEDER);
 
-        elevatorLeft = f.getTalonSRX(IntakeConstants.ELEVATOR_FRONT);
-        elevatorRight = f.getTalonSRX(IntakeConstants.ELEVATOR_BACK);
+        elevatorLeft = f.getTalonSRX(IntakeConstants.ELEVATOR_LEFT);
+        elevatorRight = f.getTalonSRX(IntakeConstants.ELEVATOR_RIGHT);
+
+        elevatorLeft.setInverted(true);
     }
 
     public void setFeederSpeed(double speed) {

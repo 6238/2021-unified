@@ -28,6 +28,7 @@ public class DPad extends Trigger {
     @Override
     public boolean get() {
         degree = joystick.getPOV();
+        System.out.println(degree);
         return (degree < 0 && position == 0) || Math.floor((degree - 22) / 45 + 2) % 8 == position;
     }
 }
