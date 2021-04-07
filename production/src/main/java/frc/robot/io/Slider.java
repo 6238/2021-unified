@@ -54,10 +54,15 @@ public class Slider {
 
     public double getDouble(double def) {
         lastDouble = getEntry().getDouble(def);
-        return getEntry().getDouble(def);
+        return lastDouble;
     }
 
     public double getDouble() {
         return getDouble(lastDouble);
+    }
+
+    public void setDouble(double input) {
+        getEntry().setDouble(input);
+        lastDouble = input;
     }
 }

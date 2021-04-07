@@ -6,32 +6,22 @@ import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
     private final WPI_TalonSRX feeder;
-    // private final WPI_TalonSRX throatLeft;
-    // private final WPI_TalonSRX throatRight;
     private final WPI_TalonSRX elevatorLeft;
     private final WPI_TalonSRX elevatorRight;
 
     private double feederSpeed = 0.0;
-    // private double throatSpeed = 0.0;
     private double elevatorSpeed = 0.0;
 
     public IntakeSubsystem(Factory f) {
-        feeder = f.getTalonMotor(IntakeConstants.FEEDER);
+        feeder = f.getTalonSRX(IntakeConstants.FEEDER);
 
-        // throatLeft = f.getTalonMotor(IntakeConstants.THROAT_FRONT);
-        // throatRight = f.getTalonMotor(IntakeConstants.THROAT_BACK);
-
-        elevatorLeft = f.getTalonMotor(IntakeConstants.ELEVATOR_FRONT);
-        elevatorRight = f.getTalonMotor(IntakeConstants.ELEVATOR_BACK);
+        elevatorLeft = f.getTalonSRX(IntakeConstants.ELEVATOR_FRONT);
+        elevatorRight = f.getTalonSRX(IntakeConstants.ELEVATOR_BACK);
     }
 
     public void setFeederSpeed(double speed) {
         feederSpeed = speed;
     }
-
-    /* public void setThroatSpeed(double speed) {
-        throatSpeed = speed;
-    } */
 
     public void setElevatorSpeed(double speed) {
         elevatorSpeed = speed;
@@ -40,9 +30,6 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         feeder.set(feederSpeed);
-
-        // throatLeft.set(throatSpeed);
-        // throatRight.set(-throatSpeed);
 
         elevatorLeft.set(elevatorSpeed);
         elevatorRight.set(-elevatorSpeed);

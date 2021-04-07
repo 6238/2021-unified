@@ -14,6 +14,7 @@ public class ShooterCommand extends CommandBase {
     private ToggleButton compressorEnabledButton;
     private Slider speedSlider;
     private boolean shooterButton = false;
+    private double speed = ShooterConstants.INITIAL_SHOOTER_SPEED;
     private int solenoidStatus = 0;
 
     public ShooterCommand(Factory f, ShooterSubsystem shooterSubsystem) {
@@ -21,7 +22,7 @@ public class ShooterCommand extends CommandBase {
         compressor = shooterSubsystem.getCompressor();
         compressor.setClosedLoopControl(true);
 
-        speedSlider = f.getSlider("Shooter speed: ", ShooterConstants.INITIAL_SHOOTER_SPEED, 0.0, 1.0);
+        speedSlider = f.getSlider("Shooter speed: ", speed, 0.0, 1.0);
         compressorEnabledButton = f.getToggleButton("Compressor Enabled", compressor.enabled());
 
         addRequirements(shooterSubsystem);
@@ -29,18 +30,23 @@ public class ShooterCommand extends CommandBase {
 
     @Override
     public void execute() {
-        shooterSubsystem.setSpeed(shooterButton ? speedSlider.getDouble() : 0);
+        speed = speedSlider.getDouble();
+        shooterSubsystem.setSpeed(shooterButton ? speed : 0);
         shooterSubsystem.setSolenoidPosition(solenoidStatus);
         compressorEnabledButton.set(compressor.enabled());
-        // System.out.println(shooterSubsystem.getSpeed());
     }
-
+    
     public void toggleShooter(boolean status) {
         shooterButton = status;
     }
-
+    
     public void toggleSolenoid(int status) {
         solenoidStatus = status;
+    }
+    
+    public void setShooterSpeed(int position) {
+        speed = ShooterConstants.SHOOTER_SPEEDS[position];
+        speedSlider.setDouble(speed);
     }
 
     @Override
