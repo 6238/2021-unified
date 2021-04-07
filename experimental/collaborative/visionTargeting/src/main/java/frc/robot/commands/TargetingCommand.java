@@ -61,17 +61,19 @@ public class TargetingCommand extends CommandBase {
         x = piSubsystem.getX();
         y = piSubsystem.getY();
         z = piSubsystem.getZ();
+        System.out.println("x: " + x);
 
-        velocity = targetingSubsystem.getVelocity(y, speedSlider.getDouble());
 
-        double angle = targetingSubsystem.getAngle(x);
-        rot = rotMagnitudeSlider.getDouble();
-        // If angle is less than 0, set to -rot, else set to rot
-        rot = angle < 0 ? -rot : rot;
-
-        if (angle == 0) {
-            rot = 0.0;
+        //rotation is set to angle(distance) from center
+        double rot = targetingSubsystem.getAngle(x);
+        if (rot >= 0){
+            rot = Math.sqrt(2 * rot);
+        } else if (rot < 0){
+            rot = -Math.sqrt(-(2 * rot));
         }
+        velocity = rot;
+        
+        System.out.println("rotation: " + rot);
 
         if (!tripped) {
             driveSubsystem.drive(velocity, rot);

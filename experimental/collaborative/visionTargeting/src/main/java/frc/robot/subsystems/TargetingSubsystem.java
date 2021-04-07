@@ -8,45 +8,41 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TargetConstants;
 
 public class TargetingSubsystem extends SubsystemBase {
-  private final double xCenter ; //x coordinate of center of screen
-  private final double yCenter; //y coordinate of center of screen
-  private final double pixelError; //Margin of Error for pixel
+    private final double xCenter; // x coordinate of center of screen
+    private final double yCenter; // y coordinate of center of screen
+    private final double pixelError; // Margin of Error for pixel
 
-  /** Creates a new TargetingSubsystem. */
-  public TargetingSubsystem() {
-    this.xCenter = TargetConstants.xCenter;
-    this.yCenter = TargetConstants.yCenter;
-    this.pixelError = TargetConstants.pixelError; 
-  }
-
-  /**used to determine whether velocity is positive or negative based on y position*/
-  public double getVelocity(double y, double speed){ 
-    if(y > (yCenter + pixelError)){ // if robot is too close
-      return -speed; // velocity is neg
-    } else if(y < (yCenter - pixelError)){ //if robot is too far away
-      return speed; //velocity is pos
+    /** Creates a new TargetingSubsystem. */
+    public TargetingSubsystem() {
+        this.xCenter = TargetConstants.xCenter;
+        this.yCenter = TargetConstants.yCenter;
+        this.pixelError = TargetConstants.pixelError;
     }
-    return 0.0; //robot is aligned with center so robot should stop moving forward/back
-  }
 
-  public double getAngle(double x){ //angle to be rotated
-    if ((x-pixelError) > xCenter) 
-      return 1; 
-    
-    else if ((x+pixelError) < xCenter) 
-      return -1; 
+    /**
+     * used to determine whether velocity is positive or negative based on y
+     * position
+     */
+    public double getVelocity(double y, double speed) {
+        if (y > (yCenter + pixelError)) { // if robot is too close
+            return -speed; // velocity is neg
+        } else if (y < (yCenter - pixelError)) { // if robot is too far away
+            return speed; // velocity is pos
+        }
+        return 0.0; // robot is aligned with center so robot should stop moving forward/back
+    }
 
-    return 0.0;
-  }
+    public double getAngle(double x) { // angle to be rotated
+        return x - xCenter;
+    }
 
-  /** checks if robot is centered */
-  public boolean isCentered(double x, double y){
-    return (xCenter < (x+pixelError) && xCenter > (x-pixelError)) && 
-           (yCenter < (y+pixelError) && yCenter > (y-pixelError));
-  }
+    /** checks if robot is centered */
+    public boolean isCentered(double x, double y) {
+        return (xCenter < (x + pixelError) && xCenter > (x - pixelError));
+    }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    @Override
+    public void periodic() {
+        // This method will be called once per scheduler run
+    }
 }
