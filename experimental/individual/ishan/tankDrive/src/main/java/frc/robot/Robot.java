@@ -29,6 +29,9 @@ public class Robot extends TimedRobot {
     private SpeedControllerGroup left = new SpeedControllerGroup(leftA, leftB, leftC);
     private SpeedControllerGroup right = new SpeedControllerGroup(rightA, rightB, rightC);
 
+    private boolean tankDrive = false;
+    private ToggleButton tankButton = new ToggleButton("tankDrive", tankDrive);
+
     @Override
     public void robotInit() {
 
@@ -36,11 +39,15 @@ public class Robot extends TimedRobot {
         m_leftStick = new Joystick(0);
         m_rightStick = new Joystick(1);
 
-        
+        tankDrive = tankButton.get();
     }
 
     @Override
     public void teleopPeriodic() {
-        m_robotDrive.tankDrive(m_leftStick.getY(), m_rightStick.getY());
+        if (tankDrive) {
+            m_robotDrive.tankDrive(m_leftStick.getY(), m_rightStick.getY());
+        } else {
+            m_robotDrive.arcadeDrive(m_leftStick.getY(), m_leftStick.getX());
+        }
     }
 }
