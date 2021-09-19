@@ -55,8 +55,8 @@ public final class Constants {
         public static final int SHOOTER_LEFT = 6;
         public static final int SHOOTER_RIGHT = 7;
 
-        public static final int SHOOTER_SOLENOID_FORWARD = 2;
-        public static final int SHOOTER_SOLENOID_REVERSE = 3;
+        public static final int SHOOTER_SOLENOID_FORWARD = 0;
+        public static final int SHOOTER_SOLENOID_REVERSE = 1;
 
         public static final double INITIAL_SHOOTER_SPEED = 0.5;
 
