@@ -17,7 +17,7 @@ public class Factory {
      * @param busID the ID of the motor controller
      * @return the CANSparkMax object
      */
-    public CANSparkMax getSparkMotor(int busID) {
+    public CANSparkMax getSpark(int busID) {
         return new CANSparkMax(busID, CANSparkMaxLowLevel.MotorType.kBrushless);
     }
 
@@ -27,7 +27,7 @@ public class Factory {
      * @param busID the ID of the motor controller
      * @return the TalonSRX
      */
-    public WPI_TalonSRX getTalonMotor(int busID) {
+    public WPI_TalonSRX getTalonSRX(int busID) {
         return new WPI_TalonSRX(busID);
     }
 
@@ -54,7 +54,7 @@ public class Factory {
         return new Slider(name, defaultValue, min, max, x, y, w, h);
     }
 
-    public Dial getInfo(String name, double defaultValue) {
+    public Dial getDial(String name, double defaultValue) {
         return new Dial(name, defaultValue);
     }
 
@@ -63,6 +63,7 @@ public class Factory {
     }
 
     private final Compressor compressor = new Compressor();
+    // private final Compressor compressor = null;
     public Compressor getCompressor() {
         return compressor;
     }
