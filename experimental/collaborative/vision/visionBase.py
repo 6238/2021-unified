@@ -8,7 +8,6 @@ import cv2 as cv
 import numpy as np
 from networktables import NetworkTablesInstance
 
-import ntcore
 from cscore import CameraServer, MjpegServer, UsbCamera, VideoSource
 
 #   JSON format:
@@ -54,7 +53,10 @@ from cscore import CameraServer, MjpegServer, UsbCamera, VideoSource
 
 configFile = "/boot/frc.json"
 
-class CameraConfig: pass
+
+class CameraConfig:
+    pass
+
 
 team = None
 server = False
@@ -68,11 +70,15 @@ outputStream = None
 height = 120
 width = 160
 
-img = np.zeros(shape=(height, width, 3), dtype=np.uint8) # used to store images - height & width in pixels, 3 color values per pixel (bgr/hsv)
+img = np.zeros(
+    shape=(height, width, 3), dtype=np.uint8
+)  # used to store images - height & width in pixels, 3 color values per pixel (bgr/hsv)
+
 
 def parseError(str):
     """Report parse error."""
     print("config error in '" + configFile + "': " + str, file=sys.stderr)
+
 
 def readCameraConfig(config):
     """Read single camera configuration."""
@@ -100,6 +106,7 @@ def readCameraConfig(config):
     cameraConfigs.append(cam)
     return True
 
+
 def readConfig():
     """Read configuration file."""
     global team
@@ -110,7 +117,9 @@ def readConfig():
         with open(configFile, "rt", encoding="utf-8") as f:
             j = json.load(f)
     except OSError as err:
-        print("could not open '{}': {}".format(configFile, err), file=sys.stderr)
+        print(
+            "could not open '{}': {}".format(configFile, err), file=sys.stderr
+        )
         return False
 
     # top level must be an object
@@ -147,6 +156,7 @@ def readConfig():
 
     return True
 
+
 def startCamera(config):
     """Start running the camera."""
     global cvSink
@@ -168,8 +178,9 @@ def startCamera(config):
 
     # (optional) Setup a CvSource. This will send images back to the Dashboard
     outputStream = inst.putVideo("image", width, height)
-    
+
     return camera
+
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2:
@@ -193,7 +204,7 @@ if __name__ == "__main__":
     # start cameras
     for config in cameraConfigs:
         cameras.append(startCamera(config))
-        
+
     # loop forever
     while True:
         # Tell the CvSink to grab a frame from the camera and put it
